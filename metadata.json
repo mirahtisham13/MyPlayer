@@ -1,0 +1,6 @@
+{
+  "name": "Video Player",
+  "description": "A native Android video player application built with Kotlin, Jetpack Compose, and Media3/ExoPlayer.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
