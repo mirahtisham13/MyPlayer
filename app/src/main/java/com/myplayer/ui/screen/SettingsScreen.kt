@@ -45,6 +45,7 @@ fun SettingsScreen(
     onNavigateToGestures: () -> Unit = {},
     onNavigateToYtdlpSettings: () -> Unit = {},
     onNavigateToMpvConfig: () -> Unit = {},
+    onNavigateToAbout: () -> Unit = {},
     settingsViewModel: SettingsViewModel = viewModel()
 ) {
     val isDeveloperMode  by settingsViewModel.isDeveloperMode.collectAsState()
@@ -75,6 +76,7 @@ fun SettingsScreen(
     }
 
     var showLanguageDialog by remember { mutableStateOf(false) }
+    var showCreditsDialog by remember { mutableStateOf(false) }
 
     // Language picker dialog
     if (showLanguageDialog) {
@@ -122,6 +124,59 @@ fun SettingsScreen(
             },
             confirmButton = {
                 TextButton(onClick = { showLanguageDialog = false }) { Text(stringResource(R.string.appearance_close)) }
+            }
+        )
+    }
+
+    // Credits Dialog
+    if (showCreditsDialog) {
+        AlertDialog(
+            onDismissRequest = { showCreditsDialog = false },
+            shape = RoundedCornerShape(20.dp),
+            containerColor = MaterialTheme.colorScheme.background,
+            title = {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Icon(
+                        Icons.Default.Info,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(22.dp)
+                    )
+                    Text("Developer Credits", style = MaterialTheme.typography.titleMedium)
+                }
+            },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(
+                        text = "Developed by Ahtisham Mir\nCo-developed with AI\n\nOriginal Project: Nosved-Player by DevSon1024",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    OutlinedButton(
+                        onClick = {
+                            val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://github.com/mirahtisham13"))
+                            context.startActivity(intent)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Ahtisham on GitHub")
+                    }
+                    OutlinedButton(
+                        onClick = {
+                            val intent = android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://github.com/DevSon1024/Nosved-Player"))
+                            context.startActivity(intent)
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Original Nosved-Player")
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showCreditsDialog = false }) { Text(stringResource(R.string.appearance_close)) }
             }
         )
     }
@@ -217,6 +272,18 @@ fun SettingsScreen(
                 }
             }
 
+            settingsSection("General") {
+                item {
+                    SettingsGroupCard {
+                        SettingsItemRow(
+                            icon = Icons.Default.Info,
+                            title = "About",
+                            subtitle = "Version, developer information, legal docs",
+                            onClick = onNavigateToAbout
+                        )
+                    }
+                }
+            }
 
             // Developer Section
             if (isDeveloperMode) {

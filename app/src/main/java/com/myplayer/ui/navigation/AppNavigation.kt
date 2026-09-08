@@ -249,7 +249,14 @@ fun AppNavigation(
                 onNavigateToScanFolders = { navController.navigate("folder_settings") { launchSingleTop = true } },
                 onNavigateToYtdlpSettings = { navController.navigate("ytdlp_settings") { launchSingleTop = true } },
                 onNavigateToMpvConfig = { navController.navigate("mpv_config") { launchSingleTop = true } },
+                onNavigateToAbout = { navController.navigate("about") { launchSingleTop = true } },
                 settingsViewModel = settingsViewModel
+            )
+        }
+
+        composable("about") {
+            com.myplayer.ui.screen.settings.AboutScreen(
+                onBack = safePopBackStack
             )
         }
 

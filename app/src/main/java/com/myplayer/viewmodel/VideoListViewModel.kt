@@ -109,7 +109,7 @@ class VideoListViewModel(
             when (settings.folderFilterMode) {
                 FolderFilterMode.WHITELIST -> {
                     val whitelist = settings.whitelistedFolders
-                    if (whitelist.isEmpty()) emptyList()
+                    if (whitelist.isEmpty()) storageFiltered
                     else storageFiltered.filter { video ->
                         whitelist.any { video.path.startsWith(it) }
                     }
@@ -196,7 +196,7 @@ class VideoListViewModel(
                 if (hist != null && hist.lastPlayedAt > 0L) video to hist.lastPlayedAt else null
             }
             .maxByOrNull { it.second }
-            ?.first
+            ?.first ?: candidateVideos.firstOrNull()
     }.flowOn(Dispatchers.Default)
      .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 

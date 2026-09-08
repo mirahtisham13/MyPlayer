@@ -598,19 +598,23 @@ fun VideoListScreen(
                     previewDurationMs = video?.duration ?: 0L,
                     previewLastPositionMs = lastHistoryEntry?.lastPositionMs ?: 0L,
                     onPlay = {
-                        video?.let { vid ->
+                        val vid = video ?: allVideosFlat.firstOrNull()
+                        if (vid != null) {
                             val playlist = when (viewSettings.viewMode) {
                                 ViewMode.FILES -> allVideosFlat.applySort(viewSettings.sortField, viewSettings.sortDirection)
                                 ViewMode.ALL_FOLDERS -> if (selectedFolder != null) {
                                     (videosByFolder[selectedFolder] ?: emptyList()).applySort(viewSettings.sortField, viewSettings.sortDirection)
                                 } else {
-                                    allVideosFlat.applySort(viewSettings.sortField, viewSettings.sortDirection)
+                                    val folderVideos = videosByFolder.values.find { folderList -> folderList.any { it.uri == vid.uri } }
+                                    (folderVideos ?: allVideosFlat).applySort(viewSettings.sortField, viewSettings.sortDirection)
                                 }
                                 ViewMode.FOLDERS -> {
                                     allVideosFlat.filter { it.path.startsWith(currentExplorerPath) }.applySort(viewSettings.sortField, viewSettings.sortDirection)
                                 }
                             }
                             onVideoSelected(vid, playlist, lastHistoryEntry?.lastPositionMs ?: 0L)
+                        } else {
+                            android.widget.Toast.makeText(context, "No videos found", android.widget.Toast.LENGTH_SHORT).show()
                         }
                     },
                     onNetworkStreamClick = { showNetworkDialog = true }
