@@ -14,9 +14,12 @@ A beautiful, modern, high-performance Android video player based on MPV, featuri
 
 ## Screenshots
 <p align="center">
-  <img src="images/home.png" width="200"/>
-  <img src="images/player.png" width="200"/>
-  <img src="images/settings.png" width="200"/>
+  <img src="images/Folder.png" width="200"/>
+  <img src="images/Gesture.png" width="200"/>
+  <img src="images/Player.png" width="200"/>
+  <img src="images/Player%20Interface.png" width="200"/>
+  <img src="images/Settings.png" width="200"/>
+  <img src="images/Theme.png" width="200"/>
 </p>
 
 ## Bug Reports & Issues
