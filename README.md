@@ -1,8 +1,6 @@
 # MyPlayer
 
-A beautiful, modern, high-performance Android video player based on MPV, featuring a stunning glassmorphic UI. Co-developed by Ahtisham Mir and AI.
-
-> **Note:** This project is a modified fork of [Nosved-Player](https://github.com/DevSon1024/Nosved-Player) by DevSon1024.
+A beautiful, modern, high-performance Android video player based on MPV, featuring a stunning glassmorphic UI.
 
 ## Key Features
 - **Glassmorphism UI**: Sleek, transparent designs for list and grid views.
