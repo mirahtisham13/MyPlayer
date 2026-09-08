@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/home/ahtisham/Ahtisham/My Player/app/.cxx/RelWithDebInfo/5s4c1vx5/armeabi-v7a",
+  "command": "/home/ahtisham/Android/Sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --target=armv7-none-linux-androideabi26 --sysroot=/home/ahtisham/Android/Sdk/ndk/27.0.12077973/toolchains/llvm/prebuilt/linux-x86_64/sysroot -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -march=armv7-a -mthumb -Wformat -Werror=format-security  -O2 -g -DNDEBUG -fPIE -o CMakeFiles/ytdl_wrapper.dir/ytdl_wrapper.c.o -c \"/home/ahtisham/Ahtisham/My Player/app/src/main/cpp/ytdl_wrapper.c\"",
+  "file": "/home/ahtisham/Ahtisham/My Player/app/src/main/cpp/ytdl_wrapper.c"
+}
+]

@@ -1,19 +1,19 @@
 {
   "buildFiles": [
-    "/home/ahtisham/Ahtisham/Projects/Nosved-Player/app/src/main/cpp/CMakeLists.txt"
+    "/home/ahtisham/Ahtisham/My Player/app/src/main/cpp/CMakeLists.txt"
   ],
   "cleanCommandsComponents": [
     [
       "/home/ahtisham/Android/Sdk/cmake/3.22.1/bin/ninja",
       "-C",
-      "/home/ahtisham/Ahtisham/Projects/Nosved-Player/app/.cxx/Debug/5k6b526g/armeabi-v7a",
+      "/home/ahtisham/Ahtisham/My Player/app/.cxx/Debug/5k6b526g/armeabi-v7a",
       "clean"
     ]
   ],
   "buildTargetsCommandComponents": [
     "/home/ahtisham/Android/Sdk/cmake/3.22.1/bin/ninja",
     "-C",
-    "/home/ahtisham/Ahtisham/Projects/Nosved-Player/app/.cxx/Debug/5k6b526g/armeabi-v7a",
+    "/home/ahtisham/Ahtisham/My Player/app/.cxx/Debug/5k6b526g/armeabi-v7a",
     "{LIST_OF_TARGETS_TO_BUILD}"
   ],
   "libraries": {
@@ -21,7 +21,7 @@
       "toolchain": "toolchain",
       "abi": "armeabi-v7a",
       "artifactName": "ytdl_wrapper",
-      "output": "/home/ahtisham/Ahtisham/Projects/Nosved-Player/app/build/intermediates/cxx/Debug/5k6b526g/obj/armeabi-v7a/libytdl.so",
+      "output": "/home/ahtisham/Ahtisham/My Player/app/build/intermediates/cxx/Debug/5k6b526g/obj/armeabi-v7a/libytdl.so",
       "runtimeFiles": []
     }
   },

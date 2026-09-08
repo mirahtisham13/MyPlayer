@@ -1,0 +1,4 @@
+- **Issue:** Project required version bump to 1.0 and generation of multiple ABI APKs.
+- **Type:** Architecture/Build
+- **Solution:** Updated `build.gradle.kts` to set `versionName = "1.0"` and `versionCode = 10`. Configured APK splits to generate `arm64-v8a`, `armeabi-v7a`, and a universal APK. Generated the requested release and debug builds.
+---

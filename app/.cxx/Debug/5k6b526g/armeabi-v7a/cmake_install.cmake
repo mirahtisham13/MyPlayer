@@ -1,4 +1,4 @@
-# Install script for directory: /home/ahtisham/Ahtisham/Projects/Nosved-Player/app/src/main/cpp
+# Install script for directory: /home/ahtisham/Ahtisham/My Player/app/src/main/cpp
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -50,5 +50,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/ahtisham/Ahtisham/Projects/Nosved-Player/app/.cxx/Debug/5k6b526g/armeabi-v7a/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/ahtisham/Ahtisham/My Player/app/.cxx/Debug/5k6b526g/armeabi-v7a/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

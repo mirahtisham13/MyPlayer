@@ -41,7 +41,7 @@
 		},
 		{
 			"isGenerated" : true,
-			"path" : "/home/ahtisham/Ahtisham/Projects/Nosved-Player/app/.cxx/Debug/5k6b526g/armeabi-v7a/CMakeFiles/3.22.1-g37088a8/CMakeSystem.cmake"
+			"path" : "/home/ahtisham/Ahtisham/My Player/app/.cxx/Debug/5k6b526g/armeabi-v7a/CMakeFiles/3.22.1-g37088a8/CMakeSystem.cmake"
 		},
 		{
 			"isExternal" : true,
@@ -307,7 +307,7 @@
 		},
 		{
 			"isGenerated" : true,
-			"path" : "/home/ahtisham/Ahtisham/Projects/Nosved-Player/app/.cxx/Debug/5k6b526g/armeabi-v7a/CMakeFiles/3.22.1-g37088a8/CMakeCCompiler.cmake"
+			"path" : "/home/ahtisham/Ahtisham/My Player/app/.cxx/Debug/5k6b526g/armeabi-v7a/CMakeFiles/3.22.1-g37088a8/CMakeCCompiler.cmake"
 		},
 		{
 			"isCMake" : true,
@@ -541,7 +541,7 @@
 		},
 		{
 			"isGenerated" : true,
-			"path" : "/home/ahtisham/Ahtisham/Projects/Nosved-Player/app/.cxx/Debug/5k6b526g/armeabi-v7a/CMakeFiles/3.22.1-g37088a8/CMakeCXXCompiler.cmake"
+			"path" : "/home/ahtisham/Ahtisham/My Player/app/.cxx/Debug/5k6b526g/armeabi-v7a/CMakeFiles/3.22.1-g37088a8/CMakeCXXCompiler.cmake"
 		},
 		{
 			"isCMake" : true,
@@ -692,7 +692,7 @@
 		},
 		{
 			"isGenerated" : true,
-			"path" : "/home/ahtisham/Ahtisham/Projects/Nosved-Player/app/.cxx/Debug/5k6b526g/armeabi-v7a/CMakeFiles/3.22.1-g37088a8/CMakeCCompiler.cmake"
+			"path" : "/home/ahtisham/Ahtisham/My Player/app/.cxx/Debug/5k6b526g/armeabi-v7a/CMakeFiles/3.22.1-g37088a8/CMakeCCompiler.cmake"
 		},
 		{
 			"isCMake" : true,
@@ -786,14 +786,14 @@
 		},
 		{
 			"isGenerated" : true,
-			"path" : "/home/ahtisham/Ahtisham/Projects/Nosved-Player/app/.cxx/Debug/5k6b526g/armeabi-v7a/CMakeFiles/3.22.1-g37088a8/CMakeCXXCompiler.cmake"
+			"path" : "/home/ahtisham/Ahtisham/My Player/app/.cxx/Debug/5k6b526g/armeabi-v7a/CMakeFiles/3.22.1-g37088a8/CMakeCXXCompiler.cmake"
 		}
 	],
 	"kind" : "cmakeFiles",
 	"paths" : 
 	{
-		"build" : "/home/ahtisham/Ahtisham/Projects/Nosved-Player/app/.cxx/Debug/5k6b526g/armeabi-v7a",
-		"source" : "/home/ahtisham/Ahtisham/Projects/Nosved-Player/app/src/main/cpp"
+		"build" : "/home/ahtisham/Ahtisham/My Player/app/.cxx/Debug/5k6b526g/armeabi-v7a",
+		"source" : "/home/ahtisham/Ahtisham/My Player/app/src/main/cpp"
 	},
 	"version" : 
 	{

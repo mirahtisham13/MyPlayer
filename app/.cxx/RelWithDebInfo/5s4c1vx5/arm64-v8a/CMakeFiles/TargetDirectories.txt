@@ -1,0 +1,3 @@
+/home/ahtisham/Ahtisham/My Player/app/.cxx/RelWithDebInfo/5s4c1vx5/arm64-v8a/CMakeFiles/ytdl_wrapper.dir
+/home/ahtisham/Ahtisham/My Player/app/.cxx/RelWithDebInfo/5s4c1vx5/arm64-v8a/CMakeFiles/edit_cache.dir
+/home/ahtisham/Ahtisham/My Player/app/.cxx/RelWithDebInfo/5s4c1vx5/arm64-v8a/CMakeFiles/rebuild_cache.dir

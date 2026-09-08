@@ -33,8 +33,8 @@ android {
         applicationId = "com.myplayer"
         minSdk = 26
         targetSdk = 36
-        versionCode = 116
-        versionName = "1.1.6"
+        versionCode = 10
+        versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -43,7 +43,7 @@ android {
 
         externalNativeBuild {
             cmake {
-                abiFilters += listOf("arm64-v8a")
+                abiFilters += listOf("arm64-v8a", "armeabi-v7a")
             }
         }
     }
@@ -87,8 +87,8 @@ android {
         abi {
             isEnable = true
             reset()
-            include("arm64-v8a")
-            isUniversalApk = false
+            include("arm64-v8a", "armeabi-v7a")
+            isUniversalApk = true
         }
     }
     applicationVariants.all {

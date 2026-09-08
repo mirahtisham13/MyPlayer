@@ -1,3 +1,3 @@
 # ninja log v5
-0	2535	1786944452793877720	CMakeFiles/ytdl_wrapper.dir/ytdl_wrapper.c.o	f843e4ff39e5621
-2536	2598	1786944452854877717	/home/ahtisham/Ahtisham/Projects/Nosved-Player/app/build/intermediates/cxx/Debug/5k6b526g/obj/armeabi-v7a/libytdl.so	2be331b9b73a01d8
+0	14446	1788867466154470114	CMakeFiles/ytdl_wrapper.dir/ytdl_wrapper.c.o	2ea35eed2715a373
+14446	24078	1788867475952470266	/home/ahtisham/Ahtisham/My Player/app/build/intermediates/cxx/Debug/5k6b526g/obj/armeabi-v7a/libytdl.so	b5b524518f644ef3

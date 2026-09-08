@@ -42,7 +42,7 @@ rule CUSTOM_COMMAND
 # Rule for re-running cmake.
 
 rule RERUN_CMAKE
-  command = /home/ahtisham/Android/Sdk/cmake/3.22.1/bin/cmake --regenerate-during-build -S/home/ahtisham/Ahtisham/Projects/Nosved-Player/app/src/main/cpp -B/home/ahtisham/Ahtisham/Projects/Nosved-Player/app/.cxx/Debug/5k6b526g/armeabi-v7a
+  command = /home/ahtisham/Android/Sdk/cmake/3.22.1/bin/cmake --regenerate-during-build -S"/home/ahtisham/Ahtisham/My Player/app/src/main/cpp" -B"/home/ahtisham/Ahtisham/My Player/app/.cxx/Debug/5k6b526g/armeabi-v7a"
   description = Re-running CMake...
   generator = 1
 
