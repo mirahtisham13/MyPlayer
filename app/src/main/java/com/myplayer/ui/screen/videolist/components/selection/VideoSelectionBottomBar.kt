@@ -130,31 +130,16 @@ fun VideoSelectionBottomBar(
                 )
             }
             // Rename — only when 1 item selected
-            AnimatedVisibility(
-                visible = selectedVideos.size == 1,
-                enter = expandHorizontally(
-                    animationSpec = spring(dampingRatio = 0.55f, stiffness = Spring.StiffnessLow),
-                    expandFrom = Alignment.CenterHorizontally
-                ) + fadeIn(animationSpec = spring(stiffness = Spring.StiffnessLow)) + scaleIn(
-                    animationSpec = spring(dampingRatio = 0.55f, stiffness = Spring.StiffnessLow),
-                    initialScale = 0.7f
-                ),
-                exit = shrinkHorizontally(
-                    animationSpec = spring(dampingRatio = 0.55f, stiffness = Spring.StiffnessLow),
-                    shrinkTowards = Alignment.CenterHorizontally
-                ) + fadeOut(animationSpec = spring(stiffness = Spring.StiffnessLow)) + scaleOut(
-                    animationSpec = spring(dampingRatio = 0.55f, stiffness = Spring.StiffnessLow),
-                    targetScale = 0.7f
-                )
+            IconButton(
+                onClick = onRename,
+                enabled = selectedVideos.size == 1
             ) {
-                IconButton(onClick = onRename) {
-                    Icon(
-                        imageVector = Icons.Filled.DriveFileRenameOutline,
-                        contentDescription = "Rename",
-                        tint = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
+                Icon(
+                    imageVector = Icons.Filled.DriveFileRenameOutline,
+                    contentDescription = "Rename",
+                    tint = if (selectedVideos.size == 1) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+                    modifier = Modifier.size(24.dp)
+                )
             }
             // Share
             IconButton(onClick = onShare) {

@@ -542,7 +542,13 @@ class PlayerViewModel(
             Log.d("PlayerViewModel", "Loading prepared video into engine: $uri")
             playerEngine.loadVideo(uri)
             isVideoLoaded = true
-            
+
+            // Reset subtitle delay for each new video — delay is per-video, not persistent
+            viewModelScope.launch {
+                settingsRepo.updateSubtitleDelay(0L)
+            }
+            playerEngine.setSubtitleDelay(0L)
+
             // Set playback speed to customPlaybackSpeed preference value
             val customSpeed = settingsRepo.playbackSettingsFlow.value.customPlaybackSpeed
             setPlaybackSpeed(customSpeed)

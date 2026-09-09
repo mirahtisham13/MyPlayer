@@ -1,9 +1,17 @@
 package com.myplayer.ui.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.scrollBy
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronLeft
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.DriveFileRenameOutline
 import androidx.compose.material.icons.rounded.CreateNewFolder
 import androidx.compose.material3.*
@@ -12,9 +20,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  * Reusable dialog for renaming files/folders or naming a new folder.
@@ -37,7 +48,7 @@ fun CustomRenameDialog(
     onConfirm: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
-    var text by remember { mutableStateOf(initialName) }
+    val textFieldState = androidx.compose.foundation.text.input.rememberTextFieldState(initialText = initialName)
     val isNewFolder = confirmLabel != "Rename"
 
     Dialog(
@@ -99,12 +110,11 @@ fun CustomRenameDialog(
                 Spacer(modifier = Modifier.height(24.dp))
 
                 OutlinedTextField(
-                    value = text,
-                    onValueChange = { text = it },
+                    state = textFieldState,
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
                     placeholder = { Text(placeholder) },
-                    singleLine = true,
+                    lineLimits = androidx.compose.foundation.text.input.TextFieldLineLimits.SingleLine,
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = MaterialTheme.colorScheme.primary,
                         unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
@@ -129,11 +139,11 @@ fun CustomRenameDialog(
                         Text("Cancel", fontWeight = FontWeight.SemiBold)
                     }
 
-                    val isValid = text.isNotBlank() &&
-                            (isNewFolder || text.trim() != initialName)
+                    val isValid = textFieldState.text.isNotBlank() &&
+                            (isNewFolder || textFieldState.text.toString().trim() != initialName)
 
                     Button(
-                        onClick = { if (isValid) onConfirm(text.trim()) },
+                        onClick = { if (isValid) onConfirm(textFieldState.text.toString().trim()) },
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(16.dp),
                         enabled = isValid,

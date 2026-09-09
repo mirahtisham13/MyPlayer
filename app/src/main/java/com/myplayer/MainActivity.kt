@@ -50,6 +50,7 @@ class MainActivity : ComponentActivity() {
 
     private val _isInPipMode = mutableStateOf(false)
     private val deepLinkUri = mutableStateOf<Uri?>(null)
+    private val _showMediaManagementPrompt = mutableStateOf(false)
 
     private fun handleIntent(intent: Intent?): Uri? {
         if (intent == null) return null
@@ -176,6 +177,7 @@ class MainActivity : ComponentActivity() {
             homeViewModel.loadFolders()
             videoListViewModel.loadVideos()
             checkNotificationPermission()
+            checkMediaManagementPermission()
         } else {
             Toast.makeText(this, "Permission denied to read videos", Toast.LENGTH_LONG).show()
         }
@@ -264,6 +266,31 @@ class MainActivity : ComponentActivity() {
                         onDeepLinkHandled = { deepLinkUri.value = null }
                     )
                 }
+
+                if (_showMediaManagementPrompt.value) {
+                    androidx.compose.material3.AlertDialog(
+                        onDismissRequest = { _showMediaManagementPrompt.value = false },
+                        title = { androidx.compose.material3.Text("Media Management Permission") },
+                        text = { androidx.compose.material3.Text("MyPlayer requires Media Management permission to allow you to seamlessly rename and delete videos directly from the app.") },
+                        confirmButton = {
+                            androidx.compose.material3.TextButton(
+                                onClick = {
+                                    _showMediaManagementPrompt.value = false
+                                    launchMediaManagementIntent()
+                                }
+                            ) {
+                                androidx.compose.material3.Text("Allow")
+                            }
+                        },
+                        dismissButton = {
+                            androidx.compose.material3.TextButton(
+                                onClick = { _showMediaManagementPrompt.value = false }
+                            ) {
+                                androidx.compose.material3.Text("Cancel")
+                            }
+                        }
+                    )
+                }
             }
         }
     }
@@ -289,15 +316,19 @@ class MainActivity : ComponentActivity() {
     private fun checkMediaManagementPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             if (!android.provider.MediaStore.canManageMedia(this)) {
-                try {
-                    val intent = Intent(android.provider.Settings.ACTION_REQUEST_MANAGE_MEDIA).apply {
-                        data = Uri.parse("package:$packageName")
-                    }
-                    startActivity(intent)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
+                _showMediaManagementPrompt.value = true
             }
+        }
+    }
+
+    private fun launchMediaManagementIntent() {
+        try {
+            val intent = Intent(android.provider.Settings.ACTION_REQUEST_MANAGE_MEDIA).apply {
+                data = Uri.parse("package:$packageName")
+            }
+            startActivity(intent)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
