@@ -43,6 +43,13 @@ fun VideoListContent(
     val currentOnVideoLongClick by rememberUpdatedState(onVideoLongClick)
     val currentOnInfoClick by rememberUpdatedState(onInfoClick)
 
+    val mostRecentlyPlayedUri = remember(videos, historyMap) {
+        videos.mapNotNull { v -> historyMap[v.uri]?.let { h -> v.uri to h.lastPlayedAt } }
+              .filter { it.second > 0L }
+              .maxByOrNull { it.second }
+              ?.first
+    }
+
     if (videos.isEmpty()) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CustomEmptyStateView(
@@ -78,7 +85,9 @@ fun VideoListContent(
                     video = video,
                     settings = settings,
                     isSelected = video in selectedVideos,
+                    lastPlayedAt = historyMap[video.uri]?.lastPlayedAt ?: 0L,
                     lastPositionMs = historyMap[video.uri]?.lastPositionMs ?: 0L,
+                    isLastPlayed = video.uri == mostRecentlyPlayedUri,
                     onClick = onClick,
                     onLongClick = onLongClick
                 )
@@ -114,7 +123,9 @@ fun VideoListContent(
                     video = video,
                     settings = settings,
                     isSelected = video in selectedVideos,
+                    lastPlayedAt = historyMap[video.uri]?.lastPlayedAt ?: 0L,
                     lastPositionMs = historyMap[video.uri]?.lastPositionMs ?: 0L,
+                    isLastPlayed = video.uri == mostRecentlyPlayedUri,
                     onClick = onClick,
                     onLongClick = onLongClick,
                     onInfoClick = onInfo

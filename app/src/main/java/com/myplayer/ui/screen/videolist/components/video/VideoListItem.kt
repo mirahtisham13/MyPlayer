@@ -39,7 +39,9 @@ fun VideoListItem(
     video: Video,
     settings: ViewSettings,
     isSelected: Boolean = false,
+    lastPlayedAt: Long = 0L,
     lastPositionMs: Long = 0L,
+    isLastPlayed: Boolean = false,
     onClick: (Video) -> Unit,
     onLongClick: (Video) -> Unit,
     onInfoClick: (() -> Unit)? = null
@@ -94,8 +96,8 @@ fun VideoListItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             //  Thumbnail 
-            val watchState = remember(lastPositionMs, video.duration) {
-                getWatchState(lastPositionMs, video.duration)
+            val watchState = remember(lastPlayedAt, lastPositionMs, video.duration, isLastPlayed) {
+                getWatchState(lastPlayedAt, lastPositionMs, video.duration, isLastPlayed)
             }
             Card(
                 modifier = Modifier

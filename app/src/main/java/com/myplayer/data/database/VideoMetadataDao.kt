@@ -10,6 +10,9 @@ interface VideoMetadataDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOrUpdate(metadata: CachedVideoMetadata)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertOrUpdateAll(metadataList: List<CachedVideoMetadata>)
+
     @Query("SELECT * FROM cached_video_metadata WHERE uri = :uri LIMIT 1")
     suspend fun getMetadataByUri(uri: String): CachedVideoMetadata?
 
@@ -18,6 +21,9 @@ interface VideoMetadataDao {
 
     @Query("UPDATE cached_video_metadata SET externalSubtitleUri = :subUri WHERE uri = :videoUri")
     suspend fun updateExternalSubtitle(videoUri: String, subUri: String?): Int
+
+    @Query("UPDATE cached_video_metadata SET subtitleExt = :ext, subtitleScanned = 1 WHERE uri = :videoUri")
+    suspend fun updateSubtitleScanResult(videoUri: String, ext: String?)
 
     suspend fun saveExternalSubtitle(videoUri: String, subUri: String?) {
         val updated = updateExternalSubtitle(videoUri, subUri)

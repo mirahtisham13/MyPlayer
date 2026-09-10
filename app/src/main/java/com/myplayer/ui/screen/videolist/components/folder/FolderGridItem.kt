@@ -58,10 +58,14 @@ fun FolderGridItem(
     val isHidden = folder.name.startsWith(".")
     val isDense = settings.gridColumns >= 3
     val newCount = remember(videos, historyMap) {
-        videos.count { v -> getWatchState(
-            historyMap[v.uri]?.lastPositionMs ?: 0L,
-            v.duration
-        ) is VideoWatchState.Unplayed }
+        videos.count { v -> 
+            val h = historyMap[v.uri]
+            getWatchState(
+                lastPlayedAt = h?.lastPlayedAt ?: 0L,
+                lastPositionMs = h?.lastPositionMs ?: 0L,
+                duration = v.duration
+            ) is VideoWatchState.Unplayed 
+        }
     }
  
     val bgColor by animateColorAsState(

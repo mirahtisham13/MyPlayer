@@ -81,7 +81,7 @@ class MediaStoreHelper(private val context: Context) {
                 val dateModified = cursor.getLong(dateModifiedColumn)
 
                 val contentUri: Uri = ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id)
-                val resolvedFolderName = File(data).parentFile?.name ?: "Unknown"
+                val resolvedFolderName = if (data.contains('/')) data.substringBeforeLast('/').substringAfterLast('/') else "Unknown"
                 val thumbnailUri = thumbnailsMap[id] ?: contentUri
 
                 videos.add(
@@ -177,7 +177,7 @@ class MediaStoreHelper(private val context: Context) {
                 val dateModified = cursor.getLong(dateModifiedColumn)
 
                 val contentUri: Uri = ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id)
-                val folderName = File(data).parentFile?.name ?: "Unknown"
+                val folderName = if (data.contains('/')) data.substringBeforeLast('/').substringAfterLast('/') else "Unknown"
                 val thumbnailUri = thumbnailsMap[id] ?: contentUri
 
                 videos.add(
@@ -204,7 +204,7 @@ class MediaStoreHelper(private val context: Context) {
         val foldersMap = mutableMapOf<String, MutableList<VideoItem>>()
         
         allVideos.forEach { video ->
-            val parentPath = File(video.path).parentFile?.absolutePath ?: video.folderName
+            val parentPath = if (video.path.contains('/')) video.path.substringBeforeLast('/') else video.folderName
             if (!foldersMap.containsKey(parentPath)) {
                 foldersMap[parentPath] = mutableListOf()
             }
@@ -212,7 +212,8 @@ class MediaStoreHelper(private val context: Context) {
         }
 
         foldersMap.map { (parentPath, videos) ->
-            val folderName = File(parentPath).name.ifEmpty { parentPath }
+            val extractedName = if (parentPath.contains('/')) parentPath.substringAfterLast('/') else parentPath
+            val folderName = extractedName.ifEmpty { parentPath }
             FolderItem(
                 name = folderName,
                 path = parentPath,

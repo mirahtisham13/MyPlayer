@@ -9,8 +9,8 @@ import com.myplayer.ui.screen.videolist.components.common.getWatchState
  * Common extension functions for Video objects and lists inside the VideoList screen.
  */
 
-fun Video.getWatchStatus(lastPositionMs: Long): VideoWatchState {
-    return getWatchState(lastPositionMs, this.duration)
+fun Video.getWatchStatus(lastPlayedAt: Long, lastPositionMs: Long, isLastPlayed: Boolean = false): VideoWatchState {
+    return getWatchState(lastPlayedAt, lastPositionMs, this.duration, isLastPlayed)
 }
 
 fun List<Video>.getUris(): List<Uri> {

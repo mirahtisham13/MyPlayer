@@ -50,7 +50,7 @@ class HomeViewModel(
     val storageInfo: StateFlow<Triple<Double, Double, Int>> = _storageInfo.asStateFlow()
 
     init {
-        loadWatchHistory(forceVerify = true)
+        loadWatchHistory(forceVerify = false)
     }
 
     fun loadStorageInfo() {
@@ -138,10 +138,20 @@ class HomeViewModel(
     }
 
     fun loadFolders() {
-        viewModelScope.launch {
-            _isLoading.value = true
-            val fetchedFolders = repository.getFolders()
-            _folders.value = fetchedFolders
+        // No-op: folders are now synced from VideoListViewModel to avoid duplicate MediaStore scans
+    }
+
+    fun syncFolders(videosMap: Map<com.myplayer.domain.model.VideoFolder, List<Video>>) {
+        viewModelScope.launch(Dispatchers.Default) {
+            val mappedFolders = videosMap.map { (folder, videos) ->
+                FolderItem(
+                    name = folder.name,
+                    path = folder.id,
+                    videoCount = videos.size,
+                    thumbnailUri = videos.firstOrNull()?.thumbnailUri?.let { Uri.parse(it) }
+                )
+            }.sortedBy { it.name }
+            _folders.value = mappedFolders
             _isLoading.value = false
         }
     }

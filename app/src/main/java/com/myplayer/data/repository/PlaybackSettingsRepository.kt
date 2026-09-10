@@ -81,7 +81,7 @@ class PlaybackSettingsRepository(context: Context) {
     )
     val isDarkThemeFlow: StateFlow<Boolean?> = _isDarkThemeFlow.asStateFlow()
 
-    private val _isAmoledThemeFlow = MutableStateFlow(prefs.getBoolean("is_amoled_theme", false))
+    private val _isAmoledThemeFlow = MutableStateFlow(prefs.getBoolean("is_amoled_theme", true))
     val isAmoledThemeFlow: StateFlow<Boolean> = _isAmoledThemeFlow.asStateFlow()
 
     private val _defaultAudioLangFlow =
@@ -122,13 +122,13 @@ class PlaybackSettingsRepository(context: Context) {
     private fun loadPlaybackSettings(): PlaybackSettings {
         return PlaybackSettings(
             seekDurationSeconds = prefs.getInt("seek_duration_seconds", 10),
-            seekBarStyle = prefs.getString("seek_bar_style", "standard")?.let {
-                if (it == "line") "standard" else it
-            } ?: "standard",
+            seekBarStyle = prefs.getString("seek_bar_style", "thick")?.let {
+                if (it == "line") "thick" else it
+            } ?: "thick",
             controlIconSize = prefs.getString("control_icon_size", "medium") ?: "medium",
-            autoPlayEnabled = prefs.getBoolean("auto_play_enabled", false),
+            autoPlayEnabled = prefs.getBoolean("auto_play_enabled", true),
             showNextPrevButtons = prefs.getBoolean("show_next_prev_buttons", true),
-            showSeekButtons = prefs.getBoolean("show_seek_buttons", true),
+            showSeekButtons = prefs.getBoolean("show_seek_buttons", false),
             fastplaySpeed = prefs.getFloat("fastplay_speed", 2.0f),
             orientationMode = try {
                 OrientationMode.valueOf(
@@ -154,15 +154,15 @@ class PlaybackSettingsRepository(context: Context) {
                 SoftButtonMode.valueOf(
                     prefs.getString(
                         "soft_button_mode",
-                        SoftButtonMode.HIDE.name
-                    ) ?: SoftButtonMode.HIDE.name
+                        SoftButtonMode.AUTO_HIDE.name
+                    ) ?: SoftButtonMode.AUTO_HIDE.name
                 )
             } catch (e: Exception) {
                 SoftButtonMode.HIDE
             },
-            showBatteryClockOverlay = prefs.getBoolean("show_battery_clock_overlay", false),
-            pauseWhenObstructed = prefs.getBoolean("pause_when_obstructed", true),
-            showRemainingTime = prefs.getBoolean("show_remaining_time", false),
+            showBatteryClockOverlay = prefs.getBoolean("show_battery_clock_overlay", true),
+            pauseWhenObstructed = prefs.getBoolean("pause_when_obstructed", false),
+            showRemainingTime = prefs.getBoolean("show_remaining_time", true),
             useSystemCaptionStyle = prefs.getBoolean("use_system_caption_style", false),
             subtitleFont = try {
                 SubtitleFont.valueOf(
@@ -249,16 +249,16 @@ class PlaybackSettingsRepository(context: Context) {
                 ?: "BACK_ARROW,VIDEO_TITLE",
             topRightControls = prefs.getString(
                 "top_right_controls",
-                "DECODER,SUBTITLES,AUDIO_TRACK,MORE_OPTIONS"
-            ) ?: "DECODER,SUBTITLES,AUDIO_TRACK,MORE_OPTIONS",
+                "SUBTITLES,AUDIO_TRACK,MORE_OPTIONS"
+            ) ?: "SUBTITLES,AUDIO_TRACK,MORE_OPTIONS",
             bottomLeftControls = prefs.getString(
                 "bottom_left_controls",
-                "LOCK_CONTROLS,PICTURE_IN_PICTURE"
-            ) ?: "LOCK_CONTROLS,PICTURE_IN_PICTURE",
+                "LOCK_CONTROLS"
+            ) ?: "LOCK_CONTROLS",
             bottomRightControls = prefs.getString(
                 "bottom_right_controls",
-                "ASPECT_RATIO,SCREEN_ROTATION"
-            ) ?: "ASPECT_RATIO,SCREEN_ROTATION",
+                "PICTURE_IN_PICTURE,ASPECT_RATIO"
+            ) ?: "PICTURE_IN_PICTURE,ASPECT_RATIO",
             portraitTopLeftControls = prefs.getString(
                 "portrait_top_left_controls",
                 "BACK_ARROW,VIDEO_TITLE"
@@ -269,12 +269,12 @@ class PlaybackSettingsRepository(context: Context) {
             ) ?: "SUBTITLES,AUDIO_TRACK,MORE_OPTIONS",
             portraitBottomLeftControls = prefs.getString(
                 "portrait_bottom_left_controls",
-                ""
-            ) ?: "",
+                "LOCK_CONTROLS"
+            ) ?: "LOCK_CONTROLS",
             portraitBottomRightControls = prefs.getString(
                 "portrait_bottom_right_controls",
-                "DECODER,CHAPTERS,ASPECT_RATIO,SCREEN_ROTATION"
-            ) ?: "DECODER,CHAPTERS,ASPECT_RATIO,SCREEN_ROTATION",
+                "ASPECT_RATIO"
+            ) ?: "ASPECT_RATIO",
             aspectMode = try {
                 AspectMode.valueOf(
                     prefs.getString("aspect_mode", AspectMode.FIT.name) ?: AspectMode.FIT.name
@@ -343,7 +343,7 @@ class PlaybackSettingsRepository(context: Context) {
             sponsorBlockRemove = prefs.getString("ytdl_sponsorblock_remove", "") ?: "",
             customRawOptions = prefs.getString("ytdl_custom_raw_options", "") ?: "",
             isDataSaverEnabled = prefs.getBoolean("is_data_saver_enabled", false),
-            showControlGradients = prefs.getBoolean("show_control_gradients", true),
+            showControlGradients = prefs.getBoolean("show_control_gradients", false),
             showUpNextQueue = prefs.getBoolean("show_up_next_queue", true),
             queueLayoutMode = try {
                 LayoutMode.valueOf(

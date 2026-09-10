@@ -37,14 +37,16 @@ fun VideoGridItem(
     video: Video,
     settings: ViewSettings,
     isSelected: Boolean = false,
+    lastPlayedAt: Long = 0L,
     lastPositionMs: Long = 0L,
+    isLastPlayed: Boolean = false,
     onClick: (Video) -> Unit,
     onLongClick: (Video) -> Unit
 ) {
     val haptic  = LocalHapticFeedback.current
     val isDense = settings.gridColumns >= 3
-    val watchState = remember(lastPositionMs, video.duration) {
-        getWatchState(lastPositionMs, video.duration)
+    val watchState = remember(lastPlayedAt, lastPositionMs, video.duration, isLastPlayed) {
+        getWatchState(lastPlayedAt, lastPositionMs, video.duration, isLastPlayed)
     }
     val displayTitle = remember(video.title, settings.showFileExtension) {
         if (settings.showFileExtension) video.title

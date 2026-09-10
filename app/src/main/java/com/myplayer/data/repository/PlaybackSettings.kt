@@ -38,18 +38,18 @@ enum class FolderFilterMode {
 
 data class PlaybackSettings(
     val seekDurationSeconds: Int = 10,
-    val seekBarStyle: String = "standard",
+    val seekBarStyle: String = "thick",
     val controlIconSize: String = "medium",
-    val autoPlayEnabled: Boolean = false,
+    val autoPlayEnabled: Boolean = true,
     val showNextPrevButtons: Boolean = true,
-    val showSeekButtons: Boolean = true,
+    val showSeekButtons: Boolean = false,
     val fastplaySpeed: Float = 2.0f,
     val orientationMode: OrientationMode = OrientationMode.SYSTEM_DEFAULT,
     val fullScreenMode: FullScreenMode = FullScreenMode.AUTO_SWITCH,
-    val softButtonMode: SoftButtonMode = SoftButtonMode.HIDE,
-    val showBatteryClockOverlay: Boolean = false,
-    val pauseWhenObstructed: Boolean = true,
-    val showRemainingTime: Boolean = false,
+    val softButtonMode: SoftButtonMode = SoftButtonMode.AUTO_HIDE,
+    val showBatteryClockOverlay: Boolean = true,
+    val pauseWhenObstructed: Boolean = false,
+    val showRemainingTime: Boolean = true,
     val useSystemCaptionStyle: Boolean = false,
     val subtitleFont: SubtitleFont = SubtitleFont.DEFAULT,
     val isSubtitleBold: Boolean = false,
@@ -82,16 +82,16 @@ data class PlaybackSettings(
     // Landscape regions
     // TopLeft is always BACK_ARROW + VIDEO_TITLE (non-editable, enforced in PlayerScreen)
     val topLeftControls: String = "BACK_ARROW,VIDEO_TITLE",
-    val topRightControls: String = "DECODER,SUBTITLES,AUDIO_TRACK,MORE_OPTIONS",
-    val bottomLeftControls: String = "LOCK_CONTROLS,PICTURE_IN_PICTURE",
-    val bottomRightControls: String = "ASPECT_RATIO,SCREEN_ROTATION",
+    val topRightControls: String = "SUBTITLES,AUDIO_TRACK,MORE_OPTIONS",
+    val bottomLeftControls: String = "LOCK_CONTROLS",
+    val bottomRightControls: String = "PICTURE_IN_PICTURE,ASPECT_RATIO",
     // Portrait regions 
     // Separate from landscape so each orientation is independently configurable.
     // Portrait TopLeft is always BACK_ARROW + VIDEO_TITLE (non-editable, enforced in PlayerScreen)
     val portraitTopLeftControls: String = "BACK_ARROW,VIDEO_TITLE",
     val portraitTopRightControls: String = "SUBTITLES,AUDIO_TRACK,MORE_OPTIONS",
-    val portraitBottomLeftControls: String = "",
-    val portraitBottomRightControls: String = "DECODER,CHAPTERS,ASPECT_RATIO,SCREEN_ROTATION",
+    val portraitBottomLeftControls: String = "LOCK_CONTROLS",
+    val portraitBottomRightControls: String = "ASPECT_RATIO",
     val aspectMode: AspectMode = AspectMode.FIT,
     val backgroundPlayEnabled: Boolean = false,
     // yt-dlp Settings
@@ -119,7 +119,7 @@ data class PlaybackSettings(
     val sponsorBlockRemove: String = "",
     val customRawOptions: String = "",
     val isDataSaverEnabled: Boolean = false,
-    val showControlGradients: Boolean = true,
+    val showControlGradients: Boolean = false,
     val showUpNextQueue: Boolean = true,
     val queueLayoutMode: LayoutMode = LayoutMode.LIST,
     val isAmbientModeEnabled: Boolean = false,

@@ -41,7 +41,7 @@ class ViewSettingsRepository private constructor(context: Context) {
     private fun loadSettings(): ViewSettings {
         return ViewSettings(
             showQuickFab = prefs.getBoolean("show_quick_fab", true),
-            selectByThumbnail = prefs.getBoolean("select_by_thumbnail", false),
+            selectByThumbnail = prefs.getBoolean("select_by_thumbnail", true),
             enableFabPreview = prefs.getBoolean("enable_fab_preview", true),
             scanFoldersList = prefs.getStringSet("scan_folders_list", emptySet()) ?: emptySet(),
             showHistoryCard = prefs.getBoolean("show_history_card", true),
@@ -59,13 +59,13 @@ class ViewSettingsRepository private constructor(context: Context) {
             showThumbnail = prefs.getBoolean("show_thumbnail", true),
             showLength = prefs.getBoolean("show_length", true),
             displayLengthOverThumbnail = prefs.getBoolean("display_length_over_thumbnail", true),
-            showFileExtension = prefs.getBoolean("show_file_extension", true),
+            showFileExtension = prefs.getBoolean("show_file_extension", false),
             showSize = prefs.getBoolean("show_size", true),
             showDate = prefs.getBoolean("show_date", true),
             showPath = prefs.getBoolean("show_path", false),
             showPlayedTime = prefs.getBoolean("show_played_time", true),
-            showResolution = prefs.getBoolean("show_resolution", true),
-            showFrameRate = prefs.getBoolean("show_frame_rate", true),
+            showResolution = prefs.getBoolean("show_resolution", false),
+            showFrameRate = prefs.getBoolean("show_frame_rate", false),
             sortField = try {
                 SortField.valueOf(
                     prefs.getString("sort_field", SortField.TITLE.name) ?: SortField.TITLE.name
@@ -93,8 +93,8 @@ class ViewSettingsRepository private constructor(context: Context) {
             },
             thumbnailMode = try {
                 ThumbnailMode.valueOf(
-                    prefs.getString("thumbnail_mode", ThumbnailMode.FIRST_FRAME.name)
-                        ?: ThumbnailMode.FIRST_FRAME.name
+                    prefs.getString("thumbnail_mode", ThumbnailMode.SMART.name)
+                        ?: ThumbnailMode.SMART.name
                 )
             } catch (e: Exception) {
                 ThumbnailMode.FIRST_FRAME

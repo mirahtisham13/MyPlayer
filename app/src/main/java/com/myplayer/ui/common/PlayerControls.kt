@@ -406,11 +406,7 @@ fun PlayerControls(
                     modifier = Modifier
                         .size(playCircleSize)
                         .clip(CircleShape)
-                        .background(
-                            Brush.radialGradient(
-                                colors = listOf(Color.White.copy(alpha = 0.15f), Color.White.copy(alpha = 0.05f))
-                            )
-                        )
+                        .background(Color.White.copy(alpha = 0.1f))
                         .border(1.dp, Color.White.copy(alpha = 0.25f), CircleShape)
                         .scale(playScale)
                         .clickable(enabled = !isLocked) { onPlayPauseToggle() },
@@ -660,34 +656,105 @@ fun PlayerControls(
             Spacer(modifier = Modifier.height(8.dp))
 
             if (isPortrait) {
+                val hasPortraitBottomSideButtons = portraitBottomLeftButtons.isNotEmpty() || portraitBottomRightButtons.isNotEmpty()
 
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    // Left side: show all buttons flat, no collapse chevron
                     Row(
                         modifier = Modifier.weight(1f),
-                        horizontalArrangement = Arrangement.Start,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.Start),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        leftRegion(filterButtons(portraitBottomLeftButtons), isLeftExpanded) { isLeftExpanded = it }
+                        filterButtons(portraitBottomLeftButtons).forEach { button ->
+                            controlButton(button)
+                        }
                     }
 
                     Box(
-                        modifier = Modifier.padding(horizontal = 4.dp),
+                        modifier = Modifier.padding(horizontal = if (hasPortraitBottomSideButtons) 8.dp else 4.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        bottomPlaybackControls()
+                        if (hasPortraitBottomSideButtons) {
+                            Row(
+                                modifier = Modifier.alpha(if (isLocked) 0f else 1f),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                if (showNextPrevButtons) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(actionCircleSize)
+                                            .clip(CircleShape)
+                                            .background(Color.White.copy(alpha = if (hasPrevious) 0.06f else 0.02f))
+                                            .border(1.dp, Color.White.copy(alpha = if (hasPrevious) 0.1f else 0.03f), CircleShape)
+                                            .clickable(enabled = hasPrevious && !isLocked) { onPrevClick() },
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Rounded.SkipPrevious,
+                                            contentDescription = "Previous Video",
+                                            tint = Color.White.copy(alpha = if (hasPrevious) 1f else 0.3f),
+                                            modifier = Modifier.size(actionIconSize)
+                                        )
+                                    }
+                                }
+
+                                val playScale by animateFloatAsState(targetValue = if (isPlaying) 1.0f else 1.05f, label = "PlayScale")
+                                Box(
+                                    modifier = Modifier
+                                        .size(playCircleSize)
+                                        .clip(CircleShape)
+                                        .background(Color.White.copy(alpha = 0.1f))
+                                        .border(1.dp, Color.White.copy(alpha = 0.25f), CircleShape)
+                                        .scale(playScale)
+                                        .clickable(enabled = !isLocked) { onPlayPauseToggle() },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = if (isPlaying) Icons.Rounded.Pause else Icons.Filled.PlayArrow,
+                                        contentDescription = if (isPlaying) "Pause" else "Play",
+                                        tint = Color.White,
+                                        modifier = Modifier.size(playIconSize)
+                                    )
+                                }
+
+                                if (showNextPrevButtons) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(actionCircleSize)
+                                            .clip(CircleShape)
+                                            .background(Color.White.copy(alpha = if (hasNext) 0.06f else 0.02f))
+                                            .border(1.dp, Color.White.copy(alpha = if (hasNext) 0.1f else 0.03f), CircleShape)
+                                            .clickable(enabled = hasNext && !isLocked) { onNextClick() },
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Rounded.SkipNext,
+                                            contentDescription = "Next Video",
+                                            tint = Color.White.copy(alpha = if (hasNext) 1f else 0.3f),
+                                            modifier = Modifier.size(actionIconSize)
+                                        )
+                                    }
+                                }
+                            }
+                        } else {
+                            bottomPlaybackControls()
+                        }
                     }
 
+                    // Right side: show all buttons flat, no collapse chevron
                     Row(
                         modifier = Modifier.weight(1f),
-                        horizontalArrangement = Arrangement.End,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        rightRegion(filterButtons(portraitBottomRightButtons), isRightExpanded) { isRightExpanded = it }
+                        filterButtons(portraitBottomRightButtons).forEach { button ->
+                            controlButton(button)
+                        }
                     }
                 }
             } else {

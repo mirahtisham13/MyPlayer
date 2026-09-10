@@ -26,6 +26,8 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import java.io.File
 import com.myplayer.ui.screens.videolist.state.ExplorerItem
 import com.myplayer.ui.screens.videolist.state.PathSegment
@@ -38,6 +40,7 @@ class VideoListViewModel(
 
     // Raw (unfiltered) scan result - populated once per disk scan
     private val _rawVideosByFolder = MutableStateFlow<Map<VideoFolder, List<Video>>>(emptyMap())
+    val rawVideosByFolder: StateFlow<Map<VideoFolder, List<Video>>> = _rawVideosByFolder.asStateFlow()
     private val _rawVideosFlat = MutableStateFlow<List<Video>>(emptyList())
  
     private val _historyMap = MutableStateFlow<Map<String, WatchHistory>>(emptyMap())
@@ -200,10 +203,16 @@ class VideoListViewModel(
     }.flowOn(Dispatchers.Default)
      .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
 
+    private var contentObserverJob: kotlinx.coroutines.Job? = null
+
     private val contentObserver = object : android.database.ContentObserver(android.os.Handler(android.os.Looper.getMainLooper())) {
         override fun onChange(selfChange: Boolean, uri: android.net.Uri?) {
             super.onChange(selfChange, uri)
-            loadVideos(forceRefresh = false)
+            contentObserverJob?.cancel()
+            contentObserverJob = viewModelScope.launch {
+                kotlinx.coroutines.delay(1500)
+                loadVideos(forceRefresh = false)
+            }
         }
     }
 
@@ -281,93 +290,150 @@ class VideoListViewModel(
             _loadingProgress.value = 0f
             try {
                 val videoItems = repository.getAllVideos()
-                val mappedVideos = mutableMapOf<VideoFolder, List<Video>>()
                 val metadataDao = repository.videoMetadataDao
+                
+                // Pre-fetch all cached metadata in one DB call
+                val allCachedMetadata = metadataDao.getAllMetadataSync().associateBy { it.uri }
+                val newMetadataList = mutableListOf<com.myplayer.data.database.CachedVideoMetadata>()
                 
                 // Group by parent folder absolute path
                 val groupedByPath = videoItems.groupBy { item ->
-                    File(item.path).parentFile?.absolutePath ?: item.folderName
+                    java.io.File(item.path).parentFile?.absolutePath ?: item.folderName
                 }
                 
                 val totalPaths = groupedByPath.size
                 var index = 0
-                groupedByPath.forEach { (parentPath, items) ->
-                    _loadingProgress.value = if (totalPaths > 0) index.toFloat() / totalPaths.toFloat() else 1f
-                    
-                    val folderName = File(parentPath).name.ifEmpty { parentPath }
-                    val videos = items.map { item ->
-                        val uriStr = item.uri.toString()
-                        
-                        val finalSize: Long
-                        val finalDateModified: Long
-                        val finalDuration: Long
-                        
-                        if (item.size > 0 && item.duration > 0) {
-                            finalSize = item.size
-                            finalDateModified = item.dateModified * 1000
-                            finalDuration = item.duration
-                        } else {
-                            val cached = metadataDao.getMetadataByUri(uriStr)
-                            if (cached != null) {
-                                finalSize = cached.size
-                                finalDateModified = cached.dateModified
-                                finalDuration = cached.duration
-                            } else {
-                                val extracted = com.myplayer.util.getVideoMetadata(repository.context, item.uri)
-                                finalSize = if (extracted.fileSize > 0) extracted.fileSize else item.size
-                                finalDateModified = if (extracted.lastModified > 0) extracted.lastModified else item.dateModified * 1000
-                                finalDuration = item.duration
+                val mappedVideos = java.util.concurrent.ConcurrentHashMap<com.myplayer.domain.model.VideoFolder, List<com.myplayer.domain.model.Video>>()
+                
+                kotlinx.coroutines.coroutineScope {
+                    groupedByPath.map { (parentPath, items) ->
+                        async(Dispatchers.IO) {
+                            val folderName = java.io.File(parentPath).name.ifEmpty { parentPath }
+                            val videos = items.map { item ->
+                                val uriStr = item.uri.toString()
                                 
-                                metadataDao.insertOrUpdate(
-                                    com.myplayer.data.database.CachedVideoMetadata(
-                                        uri = uriStr,
-                                        size = finalSize,
-                                        dateModified = finalDateModified,
-                                        duration = finalDuration
-                                    )
+                                val finalSize: Long
+                                val finalDateModified: Long
+                                val finalDuration: Long
+                                val cachedSubExt: String?
+                                
+                                if (item.size > 0 && item.duration > 0) {
+                                    finalSize = item.size
+                                    finalDateModified = item.dateModified * 1000
+                                    finalDuration = item.duration
+                                    
+                                    val cached = allCachedMetadata[uriStr]
+                                    cachedSubExt = cached?.subtitleExt
+                                } else {
+                                    val cached = allCachedMetadata[uriStr]
+                                    if (cached != null) {
+                                        finalSize = cached.size
+                                        finalDateModified = cached.dateModified
+                                        finalDuration = cached.duration
+                                        cachedSubExt = cached.subtitleExt
+                                    } else {
+                                        val extracted = com.myplayer.util.getVideoMetadata(repository.context, item.uri)
+                                        finalSize = if (extracted.fileSize > 0) extracted.fileSize else item.size
+                                        finalDateModified = if (extracted.lastModified > 0) extracted.lastModified else item.dateModified * 1000
+                                        finalDuration = item.duration
+                                        cachedSubExt = null
+                                        
+                                        synchronized(newMetadataList) {
+                                            newMetadataList.add(
+                                                com.myplayer.data.database.CachedVideoMetadata(
+                                                    uri = uriStr,
+                                                    size = finalSize,
+                                                    dateModified = finalDateModified,
+                                                    duration = finalDuration,
+                                                    subtitleScanned = false
+                                                )
+                                            )
+                                        }
+                                    }
+                                }
+
+                                com.myplayer.domain.model.Video(
+                                    uri = uriStr,
+                                    title = item.title,
+                                    duration = finalDuration,
+                                    folderName = item.folderName,
+                                    path = item.path,
+                                    size = finalSize,
+                                    width = item.width,
+                                    height = item.height,
+                                    dateAdded = finalDateModified,
+                                    dateModified = finalDateModified,
+                                    playedTime = null,
+                                    lastPlayedAt = null,
+                                    resolution = "${item.width}x${item.height}",
+                                    frameRate = 30.0f,
+                                    thumbnailUri = item.thumbnailUri?.toString(),
+                                    subtitleExt = cachedSubExt
                                 )
                             }
+                            if (videos.isNotEmpty()) {
+                                val videoFolder = com.myplayer.domain.model.VideoFolder(
+                                    id = parentPath,
+                                    name = folderName
+                                )
+                                mappedVideos[videoFolder] = videos
+                            }
+                            index++
+                            _loadingProgress.value = if (totalPaths > 0) index.toFloat() / totalPaths.toFloat() else 1f
                         }
+                    }.awaitAll()
+                }
 
-                        Video(
-                            uri = uriStr,
-                            title = item.title,
-                            duration = finalDuration,
-                            folderName = item.folderName,
-                            path = item.path,
-                            size = finalSize,
-                            width = item.width,
-                            height = item.height,
-                            dateAdded = finalDateModified,
-                            dateModified = finalDateModified,
-                            playedTime = null,
-                            lastPlayedAt = null,
-                            resolution = "${item.width}x${item.height}",
-                            frameRate = 30.0f,
-                            thumbnailUri = item.thumbnailUri?.toString(),
-                            subtitleExt = com.myplayer.util.SubtitleHelper.getSubtitleExtension(repository.context, item.path)
-                        )
-                    }
-                    if (videos.isNotEmpty()) {
-                        val videoFolder = VideoFolder(
-                            id = parentPath,
-                            name = folderName
-                        )
-                        mappedVideos[videoFolder] = videos
-                    }
-                    index++
+                if (newMetadataList.isNotEmpty()) {
+                    metadataDao.insertOrUpdateAll(newMetadataList)
                 }
 
                 _loadingProgress.value = 1f
-                // Store raw (unfiltered) - the combine flows handle storage + search filtering reactively
-                _rawVideosByFolder.value = mappedVideos
+                // Store raw (unfiltered)
+                _rawVideosByFolder.value = mappedVideos.toMap()
                 _rawVideosFlat.value = mappedVideos.values.flatten()
+                
+                // Start background scan for subtitles for videos that haven't been scanned
+                startBackgroundSubtitleScan(allCachedMetadata)
             } catch (e: Exception) {
                 android.util.Log.e("VideoListViewModel", "Failed to load videos", e)
                 _loadError.value = e.localizedMessage ?: "Failed to load videos"
             } finally {
                 _isLoading.value = false
                 _isRefreshing.value = false
+            }
+        }
+    }
+
+    private fun startBackgroundSubtitleScan(cachedMap: Map<String, com.myplayer.data.database.CachedVideoMetadata>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val currentMap = _rawVideosByFolder.value
+            val updatedMap = mutableMapOf<com.myplayer.domain.model.VideoFolder, List<com.myplayer.domain.model.Video>>()
+            var changed = false
+            val metadataDao = repository.videoMetadataDao
+
+            for ((folder, videos) in currentMap) {
+                val updatedVideos = videos.map { video ->
+                    val cached = cachedMap[video.uri]
+                    if (cached == null || !cached.subtitleScanned) {
+                        val subExt = com.myplayer.util.SubtitleHelper.getSubtitleExtension(repository.context, video.path)
+                        metadataDao.updateSubtitleScanResult(video.uri, subExt)
+                        if (subExt != video.subtitleExt) {
+                            changed = true
+                            video.copy(subtitleExt = subExt)
+                        } else {
+                            video
+                        }
+                    } else {
+                        video
+                    }
+                }
+                updatedMap[folder] = updatedVideos
+            }
+
+            if (changed) {
+                _rawVideosByFolder.value = updatedMap
+                _rawVideosFlat.value = updatedMap.values.flatten()
             }
         }
     }

@@ -11,28 +11,36 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.graphics.Color
 
 sealed class VideoWatchState {
     object Unplayed : VideoWatchState()
     object InProgress : VideoWatchState()
     object Completed : VideoWatchState()
+    object Opened : VideoWatchState()
 }
 
-fun getWatchState(lastPositionMs: Long, duration: Long): VideoWatchState {
+fun getWatchState(lastPlayedAt: Long, lastPositionMs: Long, duration: Long, isLastPlayed: Boolean = false): VideoWatchState {
+    if (lastPlayedAt == 0L && lastPositionMs == 0L) {
+        return VideoWatchState.Unplayed
+    }
     val progress = if (duration > 0) (lastPositionMs.toFloat() / duration).coerceIn(0f, 1f) else 0f
     return when {
-        progress == 0f -> VideoWatchState.Unplayed
         progress > 0.95f -> VideoWatchState.Completed
-        else -> VideoWatchState.InProgress
+        isLastPlayed && progress > 0f -> VideoWatchState.InProgress
+        else -> VideoWatchState.Opened
     }
 }
 
 @Composable
 fun WatchStateBadge(state: VideoWatchState, isLarge: Boolean = false) {
+    if (state is VideoWatchState.Opened) return
+
     val (label, bgColor, textColor) = when (state) {
-        is VideoWatchState.Unplayed  -> Triple("New",     MaterialTheme.colorScheme.primary,                          MaterialTheme.colorScheme.onPrimary)
+        is VideoWatchState.Unplayed  -> Triple("New",     Color(0xFFE53935),                          Color.White)
         is VideoWatchState.InProgress -> Triple("Running", MaterialTheme.colorScheme.tertiary,                         MaterialTheme.colorScheme.onTertiary)
         is VideoWatchState.Completed  -> Triple("Ended",   MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.88f), MaterialTheme.colorScheme.onSurfaceVariant)
+        is VideoWatchState.Opened -> return
     }
 
     val fontSize = if (isLarge) 11.sp else 9.sp

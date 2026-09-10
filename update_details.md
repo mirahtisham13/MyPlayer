@@ -1,25 +1,25 @@
-- **Issue:** Project required version bump to 1.0 and generation of multiple ABI APKs.
-- **Type:** Architecture/Build
-- **Solution:** Updated `build.gradle.kts` to set `versionName = "1.0"` and `versionCode = 10`. Configured APK splits to generate `arm64-v8a`, `armeabi-v7a`, and a universal APK. Generated the requested release and debug builds.
+- **Date:** 2026-09-10 00:08:00
+- **Issue:** Requested generation of APK file for testing/distribution.
+- **Type:** Build
+- **Solution:** Executed `./gradlew assembleDebug` to successfully generate debug APKs (arm64-v8a, armeabi-v7a, and universal).
 ---
-- **Issue:** Subtitle delay (sync) persisted across different videos instead of resetting for each new video.
-- **Type:** Bug
-- **Solution:** Added a call in `PlayerViewModel.loadVideoIfNeeded()` to explicitly reset the subtitle delay back to `0L` both in preferences and the `playerEngine` when loading a new video.
+- **Date:** 2026-09-10 12:20:00
+- **Issue:** Play Protect flagged debug APKs and Enhanced Security blocked installation.
+- **Type:** Build / Security
+- **Solution:** Generated a custom release keystore and built release APKs (`./gradlew assembleRelease`) to bypass standard debug signature checks by Play Protect and Enhanced Security.
 ---
-- **Issue:** The rename dialog lacked a convenient way to horizontally scroll long text when dragging the cursor handle.
+- **Date:** 2026-09-10 13:00:00
+- **Issue:** Video list and folder loading taking too long and lagging.
+- **Type:** Performance
+- **Solution:** Parallellized folder processing, deferred subtitle extraction to a background coroutine post-load, implemented bulk database transactions (`insertOrUpdateAll`), and eliminated redundant MediaStore queries by syncing folders directly from `VideoListViewModel`.
+---
+- **Date:** 2026-09-10 14:05:00
+- **Issue:** 'NEW' and 'RUNNING' tags were not behaving as desired in folder/file lists.
 - **Type:** UI
-- **Solution:** Replaced the legacy `OutlinedTextField` string state with Compose 1.7+ `TextFieldState` (`rememberTextFieldState`) which natively supports proper edge-scrolling when dragging the text selection handle.
+- **Solution:** Restructured `VideoWatchState` to instantly remove 'NEW' if a video has been opened once (`lastPlayedAt > 0`), which automatically updates folder badge counts. Modified 'RUNNING' to explicitly only display on the single most recently played video within the active folder scope.
 ---
-- **Issue:** When selecting multiple videos or folders, the rename icon in the bottom app bar disappeared entirely instead of being greyed out.
-- **Type:** UI
-- **Solution:** Changed `AnimatedVisibility` for the rename icon to always show the button, but tied `enabled` state and icon color alpha (0.38f) to `selectedVideos.size == 1` and `selectedFolders.size == 1`.
----
-
-- **Issue:** Media management permission not requested during fresh install
-- **Type:** Feature
-- **Solution:** Updated MainActivity's requestPermissionLauncher callback to invoke checkMediaManagementPermission() immediately after basic storage permissions are granted.
----
-- **Issue:** Media management permission prompt was abrupt and lacked context.
-- **Type:** UI/UX
-- **Solution:** Added a Jetpack Compose `AlertDialog` that intercepts the flow to explain *why* the permission is needed, giving the user "Allow" (launches intent) and "Cancel" (dismisses) options.
+- **Date:** 2026-09-10 15:08:00
+- **Issue:** Release APKs were unable to be installed due to minification/shrinking reducing size and causing missing resource/class issues.
+- **Type:** Build
+- **Solution:** Disabled `isMinifyEnabled` and `isShrinkResources` in `build.gradle.kts` for the `release` build type to ensure uncompressed and complete APKs are generated.
 ---

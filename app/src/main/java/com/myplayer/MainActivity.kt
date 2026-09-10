@@ -231,7 +231,13 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                videoListViewModel.rawVideosByFolder.collect { map ->
+                    homeViewModel.syncFolders(map)
+                }
+            }
+        }
 
         checkAndRequestPermissions()
 
@@ -407,10 +413,14 @@ class MainActivity : ComponentActivity() {
                 putExtra(MediaPlaybackService.EXTRA_VIDEO_TITLE, title)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService(serviceIntent)
-            } else {
-                startService(serviceIntent)
+            try {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    startForegroundService(serviceIntent)
+                } else {
+                    startService(serviceIntent)
+                }
+            } catch (e: Exception) {
+                Log.w("MainActivity", "Could not start background playback service: ${e.message}")
             }
         }
     }

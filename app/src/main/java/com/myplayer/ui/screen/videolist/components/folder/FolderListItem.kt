@@ -63,14 +63,14 @@ fun BoxScope.NewCountBadge(count: Int) {
         modifier = Modifier
             .align(Alignment.TopStart)
             .background(
-                color = MaterialTheme.colorScheme.primary,
+                color = Color(0xFFE53935),
                 shape = RoundedCornerShape(20.dp)
             )
             .padding(horizontal = 6.dp, vertical = 2.dp)
     ) {
         Text(
             text       = stringResource(R.string.folder_new_badge, count),
-            color      = MaterialTheme.colorScheme.onPrimary,
+            color      = Color.White,
             style      = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.ExtraBold,
             fontSize   = 9.sp
@@ -121,10 +121,14 @@ fun FolderListItem(
 ) {
     val isHidden = folder.name.startsWith(".")
     val newCount = remember(videos, historyMap) {
-        videos.count { v -> getWatchState(
-            historyMap[v.uri]?.lastPositionMs ?: 0L,
-            v.duration
-        ) is VideoWatchState.Unplayed }
+        videos.count { v -> 
+            val h = historyMap[v.uri]
+            getWatchState(
+                lastPlayedAt = h?.lastPlayedAt ?: 0L,
+                lastPositionMs = h?.lastPositionMs ?: 0L,
+                duration = v.duration
+            ) is VideoWatchState.Unplayed 
+        }
     }
     val bgColor by animateColorAsState(
         targetValue  = if (isSelected)

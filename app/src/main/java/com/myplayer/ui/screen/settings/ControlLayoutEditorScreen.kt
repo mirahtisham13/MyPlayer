@@ -19,6 +19,8 @@ import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import com.myplayer.ui.common.icons.AspectIcons
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
+import androidx.compose.ui.platform.LocalContext
+import android.widget.Toast
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,6 +48,7 @@ fun ControlLayoutEditorScreen(
 ) {
     val playbackSettings by settingsViewModel.playbackSettings.collectAsState()
     val allButtons = remember { PlayerButton.entries.filter { it != PlayerButton.NONE } }
+    val context = LocalContext.current
 
     // 1. Helper to parse regions safely
     fun parseRegion(value: String, region: ControlRegion): List<PlayerButton> {
@@ -445,8 +448,15 @@ fun ControlLayoutEditorScreen(
                             verticalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
                             paletteButtons.forEach { button ->
-                                val onPaletteClick = remember(button, activeList) {
-                                    { onActiveListChange(activeList + button) }
+                                val onPaletteClick = remember(button, activeList, selectedRegion) {
+                                    {
+                                        val isPortraitSide = selectedRegion == ControlRegion.PORTRAIT_BOTTOM_LEFT || selectedRegion == ControlRegion.PORTRAIT_BOTTOM_RIGHT
+                                        if (isPortraitSide && activeList.size >= 2) {
+                                            Toast.makeText(context, "Maximum 2 controls allowed here in portrait", Toast.LENGTH_SHORT).show()
+                                        } else {
+                                            onActiveListChange(activeList + button)
+                                        }
+                                    }
                                 }
                                 Box(
                                     modifier = Modifier

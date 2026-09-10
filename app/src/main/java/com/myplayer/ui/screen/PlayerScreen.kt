@@ -518,14 +518,14 @@ fun PlayerScreen(
     val currentIsPlaying by rememberUpdatedState(isPlaying)
 
     // Observe and apply system navigation (soft button mode) settings dynamically
-    LaunchedEffect(playbackSettings.softButtonMode, controlsVisible) {
+    LaunchedEffect(playbackSettings.softButtonMode, controlsVisible, isLocked) {
         activity?.let { act ->
             val window = act.window
             val insetsController = WindowCompat.getInsetsController(window, window.decorView)
             when (playbackSettings.softButtonMode) {
                 SoftButtonMode.AUTO_HIDE -> {
                     insetsController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-                    if (controlsVisible) {
+                    if (controlsVisible && !isLocked) {
                         insetsController.show(WindowInsetsCompat.Type.statusBars() or WindowInsetsCompat.Type.navigationBars())
                     } else {
                         insetsController.hide(WindowInsetsCompat.Type.statusBars() or WindowInsetsCompat.Type.navigationBars())
@@ -536,7 +536,7 @@ fun PlayerScreen(
                 }
                 SoftButtonMode.HIDE -> {
                     insetsController.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-                    if (controlsVisible) {
+                    if (controlsVisible && !isLocked) {
                         insetsController.show(WindowInsetsCompat.Type.statusBars())
                     } else {
                         insetsController.hide(WindowInsetsCompat.Type.statusBars())
@@ -755,27 +755,29 @@ fun PlayerScreen(
                     }
                 }
 
-                ComposeSubtitleOverlay(
-                    subtitleText = currentSubtitleText,
-                    textSizeScale = playbackSettings.subtitleTextSizeScale,
-                    bgStyle = playbackSettings.subtitleBgStyle,
-                    subtitleFont = playbackSettings.subtitleFont,
-                    isSubtitleBold = playbackSettings.isSubtitleBold,
-                    isSubtitleGestureEnabled = playbackSettings.subtitleGesturesEnabled && !isInPipMode,
-                    verticalOffsetFraction = playbackSettings.subtitleVerticalOffset,
-                    onVerticalOffsetFractionChanged = { offset ->
-                        onUpdateSubtitleVerticalOffset(offset)
-                    },
-                    onSeekNext = onSeekNextSubtitle,
-                    onSeekPrev = onSeekPrevSubtitle
-                )
+                if (!isInPipMode) {
+                    ComposeSubtitleOverlay(
+                        subtitleText = currentSubtitleText,
+                        textSizeScale = playbackSettings.subtitleTextSizeScale,
+                        bgStyle = playbackSettings.subtitleBgStyle,
+                        subtitleFont = playbackSettings.subtitleFont,
+                        isSubtitleBold = playbackSettings.isSubtitleBold,
+                        isSubtitleGestureEnabled = playbackSettings.subtitleGesturesEnabled,
+                        verticalOffsetFraction = playbackSettings.subtitleVerticalOffset,
+                        onVerticalOffsetFractionChanged = { offset ->
+                            onUpdateSubtitleVerticalOffset(offset)
+                        },
+                        onSeekNext = onSeekNextSubtitle,
+                        onSeekPrev = onSeekPrevSubtitle
+                    )
+                }
 
                 if (!isInPipMode) {
                     // Top overlays: PersistentTopBar and/or SpeedSliderHUD
                     
                     // Persistent top bar overlay when controls are hidden
                     AnimatedVisibility(
-                        visible = !controlsVisible && playbackSettings.showBatteryClockOverlay,
+                        visible = (!controlsVisible || isLocked) && playbackSettings.showBatteryClockOverlay,
                         enter = fadeIn() + expandVertically(expandFrom = Alignment.Top),
                         exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top),
                         modifier = Modifier
