@@ -247,13 +247,15 @@ class MainActivity : ComponentActivity() {
             val selectedPalette by settingsViewModel.selectedPalette.collectAsState()
             val isNavBarTransparent by settingsViewModel.isNavBarTransparent.collectAsState()
             val isAmoledTheme by settingsViewModel.isAmoledTheme.collectAsState()
+            val colorOverrides by settingsViewModel.colorOverrides.collectAsState()
 
             MyPlayerTheme(
                 forceDark = isDark,
                 dynamicColor = dynamicColor,
                 palette = selectedPalette,
                 isNavBarTransparent = isNavBarTransparent,
-                isAmoledTheme = isAmoledTheme
+                isAmoledTheme = isAmoledTheme,
+                colorOverrides = colorOverrides
             ) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),

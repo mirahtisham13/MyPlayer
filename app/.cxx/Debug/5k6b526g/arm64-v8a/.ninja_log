@@ -1,3 +1,6 @@
 # ninja log v5
-0	3856	1788290034633038357	CMakeFiles/ytdl_wrapper.dir/ytdl_wrapper.c.o	83df896af4b7169
 3857	3902	1788290034678038357	/home/ahtisham/Ahtisham/My Player/app/build/intermediates/cxx/Debug/5k6b526g/obj/arm64-v8a/libytdl.so	7151402742eeeb33
+0	3856	1788290034633038357	CMakeFiles/ytdl_wrapper.dir/ytdl_wrapper.c.o	83df896af4b7169
+1	82	1789666097909487047	build.ninja	8d94d4e0f3a3598
+1	2050	1789666099945486987	CMakeFiles/ytdl_wrapper.dir/ytdl_wrapper.c.o	83df896af4b7169
+2050	4219	1789666102137244775	/home/ahtisham/Ahtisham/My Player/app/build/intermediates/cxx/Debug/5k6b526g/obj/arm64-v8a/libytdl.so	7151402742eeeb33

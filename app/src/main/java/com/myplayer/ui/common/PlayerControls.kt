@@ -174,9 +174,9 @@ fun PlayerControls(
                     Modifier.background(
                         Brush.verticalGradient(
                             colors = listOf(
-                                Color.Black.copy(alpha = 0.65f),
-                                Color.Transparent,
-                                Color.Black.copy(alpha = 0.8f)
+                                Color.Black.copy(alpha = 0.78f),
+                                Color.Black.copy(alpha = 0.10f),
+                                Color.Black.copy(alpha = 0.85f)
                             )
                         )
                     )
@@ -257,8 +257,8 @@ fun PlayerControls(
                     .alpha(if (isLocked) 0f else 1f)
                     .size(actionCircleSize)
                     .clip(CircleShape)
-                    .background(Color.White.copy(alpha = 0.08f))
-                    .border(1.dp, Color.White.copy(alpha = 0.15f), CircleShape)
+                    .background(Color.Black.copy(alpha = 0.45f))
+                    .border(1.dp, Color.White.copy(alpha = 0.20f), CircleShape)
                     .then(if (isLocked) Modifier else Modifier.clickable { onClick() }),
                 contentAlignment = Alignment.Center
             ) {
@@ -361,8 +361,8 @@ fun PlayerControls(
                         modifier = Modifier
                             .size(actionCircleSize)
                             .clip(CircleShape)
-                            .background(Color.White.copy(alpha = if (hasPrevious) 0.06f else 0.02f))
-                            .border(1.dp, Color.White.copy(alpha = if (hasPrevious) 0.1f else 0.03f), CircleShape)
+                            .background(Color.Black.copy(alpha = if (hasPrevious) 0.45f else 0.30f))
+                            .border(1.dp, Color.White.copy(alpha = if (hasPrevious) 0.20f else 0.08f), CircleShape)
                             .clickable(enabled = hasPrevious && !isLocked) { onPrevClick() },
                         contentAlignment = Alignment.Center
                     ) {
@@ -386,8 +386,8 @@ fun PlayerControls(
                         modifier = Modifier
                             .size(actionCircleSize)
                             .clip(CircleShape)
-                            .background(Color.White.copy(alpha = 0.06f))
-                            .border(1.dp, Color.White.copy(alpha = 0.1f), CircleShape)
+                            .background(Color.Black.copy(alpha = 0.45f))
+                            .border(1.dp, Color.White.copy(alpha = 0.20f), CircleShape)
                             .clickable(enabled = !isLocked) { onSeek((currentPosition - seekDurationSeconds * 1000L).coerceAtLeast(0L), true) },
                         contentAlignment = Alignment.Center
                     ) {
@@ -406,8 +406,8 @@ fun PlayerControls(
                     modifier = Modifier
                         .size(playCircleSize)
                         .clip(CircleShape)
-                        .background(Color.White.copy(alpha = 0.1f))
-                        .border(1.dp, Color.White.copy(alpha = 0.25f), CircleShape)
+                        .background(Color.Black.copy(alpha = 0.50f))
+                        .border(1.dp, Color.White.copy(alpha = 0.30f), CircleShape)
                         .scale(playScale)
                         .clickable(enabled = !isLocked) { onPlayPauseToggle() },
                     contentAlignment = Alignment.Center
@@ -431,8 +431,8 @@ fun PlayerControls(
                         modifier = Modifier
                             .size(actionCircleSize)
                             .clip(CircleShape)
-                            .background(Color.White.copy(alpha = 0.06f))
-                            .border(1.dp, Color.White.copy(alpha = 0.1f), CircleShape)
+                            .background(Color.Black.copy(alpha = 0.45f))
+                            .border(1.dp, Color.White.copy(alpha = 0.20f), CircleShape)
                             .clickable(enabled = !isLocked) { onSeek((currentPosition + seekDurationSeconds * 1000L).coerceAtMost(duration), true) },
                         contentAlignment = Alignment.Center
                     ) {
@@ -451,8 +451,8 @@ fun PlayerControls(
                         modifier = Modifier
                             .size(actionCircleSize)
                             .clip(CircleShape)
-                            .background(Color.White.copy(alpha = if (hasNext) 0.06f else 0.02f))
-                            .border(1.dp, Color.White.copy(alpha = if (hasNext) 0.1f else 0.03f), CircleShape)
+                            .background(Color.Black.copy(alpha = if (hasNext) 0.45f else 0.30f))
+                            .border(1.dp, Color.White.copy(alpha = if (hasNext) 0.20f else 0.08f), CircleShape)
                             .clickable(enabled = hasNext && !isLocked) { onNextClick() },
                         contentAlignment = Alignment.Center
                     ) {
@@ -689,8 +689,8 @@ fun PlayerControls(
                                         modifier = Modifier
                                             .size(actionCircleSize)
                                             .clip(CircleShape)
-                                            .background(Color.White.copy(alpha = if (hasPrevious) 0.06f else 0.02f))
-                                            .border(1.dp, Color.White.copy(alpha = if (hasPrevious) 0.1f else 0.03f), CircleShape)
+                                            .background(Color.Black.copy(alpha = if (hasPrevious) 0.45f else 0.30f))
+                                            .border(1.dp, Color.White.copy(alpha = if (hasPrevious) 0.20f else 0.08f), CircleShape)
                                             .clickable(enabled = hasPrevious && !isLocked) { onPrevClick() },
                                         contentAlignment = Alignment.Center
                                     ) {
@@ -708,8 +708,8 @@ fun PlayerControls(
                                     modifier = Modifier
                                         .size(playCircleSize)
                                         .clip(CircleShape)
-                                        .background(Color.White.copy(alpha = 0.1f))
-                                        .border(1.dp, Color.White.copy(alpha = 0.25f), CircleShape)
+                                        .background(Color.Black.copy(alpha = 0.50f))
+                                        .border(1.dp, Color.White.copy(alpha = 0.30f), CircleShape)
                                         .scale(playScale)
                                         .clickable(enabled = !isLocked) { onPlayPauseToggle() },
                                     contentAlignment = Alignment.Center
@@ -727,8 +727,8 @@ fun PlayerControls(
                                         modifier = Modifier
                                             .size(actionCircleSize)
                                             .clip(CircleShape)
-                                            .background(Color.White.copy(alpha = if (hasNext) 0.06f else 0.02f))
-                                            .border(1.dp, Color.White.copy(alpha = if (hasNext) 0.1f else 0.03f), CircleShape)
+                                            .background(Color.Black.copy(alpha = if (hasNext) 0.45f else 0.30f))
+                                            .border(1.dp, Color.White.copy(alpha = if (hasNext) 0.20f else 0.08f), CircleShape)
                                             .clickable(enabled = hasNext && !isLocked) { onNextClick() },
                                         contentAlignment = Alignment.Center
                                     ) {
@@ -822,8 +822,8 @@ private fun BatteryAndClockOverlay(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
-            .background(Color.White.copy(alpha = 0.08f))
-            .border(1.dp, Color.White.copy(alpha = 0.15f), RoundedCornerShape(12.dp))
+            .background(Color.Black.copy(alpha = 0.45f))
+            .border(1.dp, Color.White.copy(alpha = 0.22f), RoundedCornerShape(12.dp))
             .padding(horizontal = 10.dp, vertical = 6.dp)
     ) {
         Row(
@@ -965,16 +965,16 @@ fun RenderPlayerButton(
                 .clip(RoundedCornerShape(12.dp))
                 .then(
                     if (isBgPlay && isBackgroundPlayEnabled) {
-                        Modifier.background(themePrimary.copy(alpha = 0.25f))
+                        Modifier.background(themePrimary.copy(alpha = 0.35f))
                     } else {
-                        Modifier.background(Color.White.copy(alpha = 0.08f))
+                        Modifier.background(Color.Black.copy(alpha = 0.45f))
                     }
                 )
                 .then(
                     if (isBgPlay && isBackgroundPlayEnabled) {
                         Modifier.border(1.dp, themePrimary, RoundedCornerShape(12.dp))
                     } else {
-                        Modifier.border(1.dp, Color.White.copy(alpha = 0.15f), RoundedCornerShape(12.dp))
+                        Modifier.border(1.dp, Color.White.copy(alpha = 0.22f), RoundedCornerShape(12.dp))
                     }
                 )
                 .then(
@@ -1038,16 +1038,16 @@ fun RenderPlayerButton(
                 .clip(CircleShape)
                 .then(
                     if (isBgPlay && isBackgroundPlayEnabled) {
-                        Modifier.background(themePrimary.copy(alpha = 0.25f))
+                        Modifier.background(themePrimary.copy(alpha = 0.35f))
                     } else {
-                        Modifier.background(Color.White.copy(alpha = 0.08f))
+                        Modifier.background(Color.Black.copy(alpha = 0.45f))
                     }
                 )
                 .then(
                     if (isBgPlay && isBackgroundPlayEnabled) {
                         Modifier.border(1.dp, themePrimary, CircleShape)
                     } else {
-                        Modifier.border(1.dp, Color.White.copy(alpha = 0.15f), CircleShape)
+                        Modifier.border(1.dp, Color.White.copy(alpha = 0.22f), CircleShape)
                     }
                 )
                 .then(

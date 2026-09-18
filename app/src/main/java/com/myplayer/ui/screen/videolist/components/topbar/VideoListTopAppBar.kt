@@ -73,6 +73,7 @@ fun VideoListTopAppBar(
     onSearch: (String) -> Unit = {},
     searchActive: Boolean = false,
     searchText: String = "",
+    searchPlaceholder: String = "Search...",
     onSearchActiveChange: (Boolean) -> Unit = {},
     onSearchTextChange: (String) -> Unit = {},
     searchSuggestions: List<String> = emptyList(),
@@ -132,7 +133,7 @@ fun VideoListTopAppBar(
                         OutlinedTextField(
                             value = searchText,
                             onValueChange = onSearchTextChange,
-                            placeholder = { Text("Search videos...") },
+                            placeholder = { Text(searchPlaceholder) },
                             singleLine = true,
                             modifier = Modifier.fillMaxWidth().focusRequester(searchFocusRequester),
                             keyboardOptions = KeyboardOptions(

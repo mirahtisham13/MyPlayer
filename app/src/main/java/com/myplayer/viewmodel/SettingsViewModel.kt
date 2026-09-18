@@ -79,6 +79,10 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
         .map { key -> AppThemePaletteHelper.fromKey(key) }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AppThemePalette.BLUE)
 
+    /** Per-slot color overrides layered on top of the selected palette. */
+    val colorOverrides: StateFlow<Map<String, Int>> = settingsRepo.colorOverridesFlow
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyMap())
+
     fun setDarkTheme(isDark: Boolean) {
         viewModelScope.launch { settingsRepo.setDarkTheme(isDark) }
     }
@@ -110,6 +114,14 @@ class SettingsViewModel(application: Application) : AndroidViewModel(application
 
     fun setSelectedPalette(palette: AppThemePalette) {
         viewModelScope.launch { settingsRepo.setSelectedPalette(palette.name) }
+    }
+
+    fun setColorOverride(slot: String, colorArgb: Int?) {
+        viewModelScope.launch { settingsRepo.setColorOverride(slot, colorArgb) }
+    }
+
+    fun clearAllColorOverrides() {
+        viewModelScope.launch { settingsRepo.clearAllColorOverrides() }
     }
 
     /** Call when the user finishes or skips the onboarding screen. */

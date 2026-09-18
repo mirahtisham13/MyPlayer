@@ -41,6 +41,7 @@ fun FolderListContent(
     settings: ViewSettings,
     selectedFolders: Set<VideoFolder>,
     historyMap: Map<String, WatchHistory> = emptyMap(),
+    searchQuery: String = "",
     onFolderClick: (VideoFolder) -> Unit,
     onFolderLongClick: (VideoFolder) -> Unit,
     listState: LazyListState = rememberLazyListState(),
@@ -48,7 +49,18 @@ fun FolderListContent(
     contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
     val haptic = LocalHapticFeedback.current
-    val sortedFolders = remember(folders) { folders.keys.toList().sortedBy { it.name.lowercase() } }
+    val sortedFolders = remember(folders, searchQuery) {
+        folders.keys.toList()
+            .sortedBy { it.name.lowercase() }
+            .let { list ->
+                if (searchQuery.isBlank()) list
+                else list.filter { folder ->
+                    // Match folder name OR any video title inside the folder
+                    folder.name.contains(searchQuery, ignoreCase = true) ||
+                        (folders[folder]?.any { video -> video.title.contains(searchQuery, ignoreCase = true) } == true)
+                }
+            }
+    }
     val currentOnFolderClick by rememberUpdatedState(onFolderClick)
     val currentOnFolderLongClick by rememberUpdatedState(onFolderLongClick)
 

@@ -1597,14 +1597,14 @@ private fun SpeedSliderHUD(
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(8.dp))
-            .background(Color.White.copy(alpha = 0.12f))
+            .background(Color.Black.copy(alpha = 0.38f))
             .border(0.5.dp, Color.White.copy(alpha = 0.30f), RoundedCornerShape(8.dp))
             .padding(horizontal = 9.dp, vertical = 4.dp)
     ) {
         Text(
             text = "2X Speed",
             color = Color.White,
-            fontSize = 11.sp,
+            fontSize = 14.sp,
             fontWeight = FontWeight.Bold,
             letterSpacing = 0.5.sp
         )

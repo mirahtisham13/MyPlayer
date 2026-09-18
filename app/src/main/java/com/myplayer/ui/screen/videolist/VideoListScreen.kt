@@ -117,6 +117,7 @@ fun VideoListScreen(
     }
 
     val videosByFolder by viewModel.videosByFolder.collectAsStateWithLifecycle()
+    val rawVideosByFolder by viewModel.rawVideosByFolder.collectAsStateWithLifecycle()
     val videosFlat by viewModel.videosFlat.collectAsStateWithLifecycle()
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
     val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
@@ -128,6 +129,7 @@ fun VideoListScreen(
     val selectedStorage by viewModel.selectedStorage.collectAsStateWithLifecycle()
 
     val searchSuggestions by viewModel.searchSuggestions.collectAsStateWithLifecycle()
+    val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
     var searchActive by remember { mutableStateOf(false) }
     var searchText by remember { mutableStateOf("") }
     val searchFocusRequester = remember { FocusRequester() }
@@ -159,12 +161,17 @@ fun VideoListScreen(
     val videoListState = rememberLazyListState()
     val videoGridState = rememberLazyGridState()
 
-    // Reset video scroll position when entering a different folder
+    // Reset video scroll position and dismiss search when entering/leaving a folder
     LaunchedEffect(selectedFolder) {
         if (selectedFolder?.name != currentFolderId) {
             videoListState.scrollToItem(0)
             videoGridState.scrollToItem(0)
             currentFolderId = selectedFolder?.name
+            if (searchActive) {
+                searchActive = false
+                searchText = ""
+                viewModel.clearSearch()
+            }
         }
     }
 
@@ -275,8 +282,9 @@ fun VideoListScreen(
         ?: android.os.Environment.getExternalStorageDirectory().absolutePath
 
     // Back handler: clears selection first before navigating out
-    BackHandler(enabled = selectedFolder != null || isSelectionActive || (viewSettings.viewMode == ViewMode.FOLDERS && currentExplorerPath != baseRoot)) {
+    BackHandler(enabled = searchActive || selectedFolder != null || isSelectionActive || (viewSettings.viewMode == ViewMode.FOLDERS && currentExplorerPath != baseRoot)) {
         when {
+            searchActive -> { searchActive = false; searchText = ""; viewModel.clearSearch() }
             selectedVideos.isNotEmpty() -> selectedVideos = emptySet()
             selectedFolders.isNotEmpty() -> selectedFolders = emptySet()
             selectedFolder != null -> viewModel.selectFolder(null)
@@ -344,13 +352,18 @@ fun VideoListScreen(
                 onSearch = onNavigateToSearch,
                 searchActive = searchActive,
                 searchText = searchText,
+                searchPlaceholder = if (viewSettings.viewMode == ViewMode.ALL_FOLDERS && selectedFolder == null) "Search folders..." else "Search videos...",
                 onSearchActiveChange = { active ->
                     searchActive = active
                     if (!active) { searchText = ""; viewModel.clearSearch() }
                 },
                 onSearchTextChange = { text ->
                     searchText = text
-                    viewModel.onSearchQueryChanged(text)
+                    if (viewSettings.viewMode == ViewMode.ALL_FOLDERS && selectedFolder == null) {
+                        // Folder-list: search is local (filter by folder name), no video query to ViewModel
+                    } else {
+                        viewModel.onSearchQueryChanged(text)
+                    }
                 },
                 searchSuggestions = searchSuggestions,
                 searchFocusRequester = searchFocusRequester,
@@ -693,16 +706,24 @@ fun VideoListScreen(
                                 modifier = Modifier.fillMaxSize()
                             ) { folder ->
                                 if (folder == null) {
+                                    val folderSearchQuery = if (searchActive) searchText else ""
                                     FolderListContent(
                                         folders = videosByFolder,
                                         settings = viewSettings,
                                         selectedFolders = selectedFolders,
                                         historyMap = historyMap,
+                                        searchQuery = folderSearchQuery,
                                         onFolderClick = { folderItem ->
                                             if (isSelectionActive) {
                                                 selectedFolders =
                                                     if (folderItem in selectedFolders) selectedFolders - folderItem else selectedFolders + folderItem
                                             } else {
+                                                // Clear search immediately before opening folder
+                                                if (searchActive) {
+                                                    searchActive = false
+                                                    searchText = ""
+                                                    viewModel.clearSearch()
+                                                }
                                                 viewModel.selectFolder(folderItem)
                                             }
                                         },
@@ -715,19 +736,26 @@ fun VideoListScreen(
                                         contentPadding = padding
                                     )
                                 } else {
-                                    val videos = videosByFolder[folder] ?: emptyList()
-                                    val sortedVideos = remember(videos, viewSettings.sortField, viewSettings.sortDirection) {
-                                        videos.applySort(viewSettings.sortField, viewSettings.sortDirection)
+                                    // Use raw (unfiltered) folder videos and filter locally by searchText
+                                    // so search only applies within this folder, not globally
+                                    val rawVideos = rawVideosByFolder[folder] ?: emptyList()
+                                    val videos = remember(rawVideos, searchText, viewSettings.sortField, viewSettings.sortDirection) {
+                                        rawVideos
+                                            .let { list ->
+                                                if (searchText.isBlank()) list
+                                                else list.filter { it.title.contains(searchText, ignoreCase = true) }
+                                            }
+                                            .applySort(viewSettings.sortField, viewSettings.sortDirection)
                                     }
                                     VideoListContent(
-                                        videos = sortedVideos,
+                                        videos = videos,
                                         settings = viewSettings,
                                         selectedVideos = selectedVideos,
                                         onVideoClick = { video ->
                                             if (isSelectionActive) {
                                                 selectedVideos = if (video in selectedVideos) selectedVideos - video else selectedVideos + video
                                             } else {
-                                                onVideoSelected(video, sortedVideos, historyMap[video.uri]?.lastPositionMs ?: 0L)
+                                                onVideoSelected(video, videos, historyMap[video.uri]?.lastPositionMs ?: 0L)
                                             }
                                         },
                                         onVideoLongClick = { video ->

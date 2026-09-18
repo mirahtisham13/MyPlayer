@@ -33,10 +33,13 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.os.LocaleListCompat
@@ -58,7 +61,11 @@ fun AppearanceSettingsScreen(
     val selectedPalette by settingsViewModel.selectedPalette.collectAsState()
     val navBarTransparent by settingsViewModel.isNavBarTransparent.collectAsState()
     val isAmoledTheme by settingsViewModel.isAmoledTheme.collectAsState()
+    val colorOverrides by settingsViewModel.colorOverrides.collectAsState()
     val isEffectivelyDark = isDark ?: isSystemInDarkTheme()
+
+    // Color picker dialog state
+    var pickerSlot by remember { mutableStateOf<String?>(null) }
 
     // Main scaffold
     Scaffold(
@@ -98,8 +105,42 @@ fun AppearanceSettingsScreen(
         ) {
             Spacer(Modifier.height(4.dp))
 
-            // Colour Preview strip
-            ColorPreviewStrip()
+            // Colour Preview strip — tap any swatch to customise
+            ColorPreviewStrip(
+                colorOverrides = colorOverrides,
+                onSwatchClick = { slot -> pickerSlot = slot },
+                onClearAll = { settingsViewModel.clearAllColorOverrides() }
+            )
+
+            // Color picker dialog
+            pickerSlot?.let { slot ->
+                ColorPickerDialog(
+                    slot = slot,
+                    currentColor = MaterialTheme.colorScheme.let { cs ->
+                        when (slot) {
+                            "primary"            -> cs.primary
+                            "secondary"          -> cs.secondary
+                            "tertiary"           -> cs.tertiary
+                            "primaryContainer"   -> cs.primaryContainer
+                            "secondaryContainer" -> cs.secondaryContainer
+                            "tertiaryContainer"  -> cs.tertiaryContainer
+                            "surfaceContainerHigh" -> cs.surfaceContainerHigh
+                            "outline"            -> cs.outline
+                            else                 -> cs.primary
+                        }
+                    },
+                    hasOverride = colorOverrides.containsKey(slot),
+                    onApply = { color ->
+                        settingsViewModel.setColorOverride(slot, color.toArgb())
+                        pickerSlot = null
+                    },
+                    onReset = {
+                        settingsViewModel.setColorOverride(slot, null)
+                        pickerSlot = null
+                    },
+                    onDismiss = { pickerSlot = null }
+                )
+            }
 
             // COLOUR PALETTE section
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -363,17 +404,22 @@ private fun PaletteCard(
 }
 
 @Composable
-private fun ColorPreviewStrip() {
-    val swatches = listOf(
-        MaterialTheme.colorScheme.primary,
-        MaterialTheme.colorScheme.secondary,
-        MaterialTheme.colorScheme.tertiary,
-        MaterialTheme.colorScheme.primaryContainer,
-        MaterialTheme.colorScheme.secondaryContainer,
-        MaterialTheme.colorScheme.tertiaryContainer,
-        MaterialTheme.colorScheme.surfaceContainerHigh,
-        MaterialTheme.colorScheme.outline,
+private fun ColorPreviewStrip(
+    colorOverrides: Map<String, Int>,
+    onSwatchClick: (String) -> Unit,
+    onClearAll: () -> Unit
+) {
+    val slots = listOf(
+        "primary" to MaterialTheme.colorScheme.primary,
+        "secondary" to MaterialTheme.colorScheme.secondary,
+        "tertiary" to MaterialTheme.colorScheme.tertiary,
+        "primaryContainer" to MaterialTheme.colorScheme.primaryContainer,
+        "secondaryContainer" to MaterialTheme.colorScheme.secondaryContainer,
+        "tertiaryContainer" to MaterialTheme.colorScheme.tertiaryContainer,
+        "surfaceContainerHigh" to MaterialTheme.colorScheme.surfaceContainerHigh,
+        "outline" to MaterialTheme.colorScheme.outline,
     )
+    val hasAnyOverride = colorOverrides.isNotEmpty()
 
     Surface(
         modifier       = Modifier.fillMaxWidth(),
@@ -382,34 +428,247 @@ private fun ColorPreviewStrip() {
         tonalElevation = 2.dp
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text  = stringResource(R.string.appearance_current_palette),
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontWeight = FontWeight.SemiBold
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text  = stringResource(R.string.appearance_current_palette),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontWeight = FontWeight.SemiBold
+                )
+                if (hasAnyOverride) {
+                    TextButton(
+                        onClick = onClearAll,
+                        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 0.dp)
+                    ) {
+                        Text(
+                            text = "Reset all",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
+            }
             Spacer(Modifier.height(10.dp))
             Row(
                 modifier              = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                swatches.forEach { raw ->
+                slots.forEach { (slot, raw) ->
                     val animColor by animateColorAsState(
                         targetValue   = raw,
                         animationSpec = tween(400),
-                        label         = "swatchAnim"
+                        label         = "swatchAnim_$slot"
                     )
+                    val isOverridden = colorOverrides.containsKey(slot)
                     Box(
                         modifier = Modifier
                             .weight(1f)
-                            .height(28.dp)
+                            .height(36.dp)
                             .clip(RoundedCornerShape(6.dp))
                             .background(animColor)
-                    )
+                            .then(
+                                if (isOverridden) Modifier.border(
+                                    1.5.dp,
+                                    Color.White.copy(alpha = 0.8f),
+                                    RoundedCornerShape(6.dp)
+                                ) else Modifier
+                            )
+                            .clickable { onSwatchClick(slot) },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (isOverridden) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(12.dp)
+                            )
+                        }
+                    }
                 }
             }
+            Spacer(Modifier.height(6.dp))
+            Text(
+                text = "Tap any colour to customise",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+            )
         }
     }
+}
+
+@Composable
+private fun ColorPickerDialog(
+    slot: String,
+    currentColor: Color,
+    hasOverride: Boolean,
+    onApply: (Color) -> Unit,
+    onReset: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    val slotLabel = remember(slot) {
+        when (slot) {
+            "primary"            -> "Primary"
+            "secondary"          -> "Secondary"
+            "tertiary"           -> "Tertiary"
+            "primaryContainer"   -> "Primary Container"
+            "secondaryContainer" -> "Secondary Container"
+            "tertiaryContainer"  -> "Tertiary Container"
+            "surfaceContainerHigh" -> "Surface High"
+            "outline"            -> "Outline"
+            else                 -> slot
+        }
+    }
+
+    // Initialize RGB from currentColor
+    var r by remember(currentColor) { mutableFloatStateOf(currentColor.red * 255f) }
+    var g by remember(currentColor) { mutableFloatStateOf(currentColor.green * 255f) }
+    var b by remember(currentColor) { mutableFloatStateOf(currentColor.blue * 255f) }
+
+    val previewColor by remember(r, g, b) {
+        derivedStateOf { Color(r.toInt(), g.toInt(), b.toInt()) }
+    }
+
+    // Hex field
+    var hexText by remember(currentColor) {
+        val argb = currentColor.copy(alpha = 1f)
+        val hex = String.format("%06X",
+            (argb.red * 255).toInt() shl 16 or
+            ((argb.green * 255).toInt() shl 8) or
+            (argb.blue * 255).toInt()
+        )
+        mutableStateOf(hex)
+    }
+    var hexError by remember { mutableStateOf(false) }
+
+    fun syncHexFromRgb() {
+        hexText = String.format("%06X", r.toInt() shl 16 or (g.toInt() shl 8) or b.toInt())
+        hexError = false
+    }
+
+    fun applyHex(text: String) {
+        val clean = text.trimStart('#')
+        if (clean.length == 6) {
+            try {
+                val v = clean.toLong(16)
+                r = ((v shr 16) and 0xFF).toFloat()
+                g = ((v shr 8) and 0xFF).toFloat()
+                b = (v and 0xFF).toFloat()
+                hexError = false
+            } catch (e: NumberFormatException) { hexError = true }
+        } else { hexError = if (clean.isEmpty()) false else true }
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = slotLabel,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold
+            )
+        },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                // Preview swatch
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(previewColor)
+                        .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(10.dp))
+                )
+
+                // Hex input
+                OutlinedTextField(
+                    value = hexText,
+                    onValueChange = { input ->
+                        hexText = input.trimStart('#').uppercase().take(6)
+                        applyHex(hexText)
+                    },
+                    label = { Text("Hex") },
+                    prefix = { Text("#") },
+                    isError = hexError,
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth(),
+                    textStyle = LocalTextStyle.current.copy(fontWeight = FontWeight.Medium)
+                )
+
+                // RGB Sliders
+                listOf(
+                    Triple("R", r, { v: Float -> r = v; syncHexFromRgb() }),
+                    Triple("G", g, { v: Float -> g = v; syncHexFromRgb() }),
+                    Triple("B", b, { v: Float -> b = v; syncHexFromRgb() })
+                ).forEach { (label, value, onChange) ->
+                    val trackColor = when (label) {
+                        "R" -> Color(value.toInt(), 0, 0)
+                        "G" -> Color(0, value.toInt(), 0)
+                        else -> Color(0, 0, value.toInt())
+                    }
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = label,
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = when (label) {
+                                "R" -> Color(200, 50, 50)
+                                "G" -> Color(50, 160, 50)
+                                else -> Color(50, 100, 200)
+                            },
+                            modifier = Modifier.width(14.dp),
+                            textAlign = TextAlign.Center
+                        )
+                        Slider(
+                            value = value,
+                            onValueChange = onChange,
+                            valueRange = 0f..255f,
+                            modifier = Modifier.weight(1f),
+                            colors = SliderDefaults.colors(
+                                thumbColor = trackColor,
+                                activeTrackColor = trackColor
+                            )
+                        )
+                        Text(
+                            text = value.toInt().toString(),
+                            style = MaterialTheme.typography.labelSmall,
+                            modifier = Modifier.width(28.dp),
+                            textAlign = TextAlign.End
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = { onApply(previewColor) }) {
+                Text("Apply", fontWeight = FontWeight.SemiBold)
+            }
+        },
+        dismissButton = {
+            Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                if (hasOverride) {
+                    TextButton(onClick = onReset) {
+                        Text(
+                            "Reset",
+                            color = MaterialTheme.colorScheme.error,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    }
+                }
+                TextButton(onClick = onDismiss) {
+                    Text("Cancel")
+                }
+            }
+        },
+        shape = RoundedCornerShape(20.dp)
+    )
 }
 
 @Composable

@@ -23,3 +23,43 @@
 - **Type:** Build
 - **Solution:** Disabled `isMinifyEnabled` and `isShrinkResources` in `build.gradle.kts` for the `release` build type to ensure uncompressed and complete APKs are generated.
 ---
+- **Date:** 2026-09-17 22:35:00
+- **Issue:** Player control buttons were not visible on bright/white video frames due to overly transparent glass backgrounds.
+- **Type:** UI
+- **Solution:** Changed all control button glass backgrounds from `Color.White.copy(alpha ~0.06-0.10f)` to `Color.Black.copy(alpha ~0.45-0.50f)`. Darkened top/bottom scrim gradient (0.65→0.78, transparent→0.10, 0.80→0.85). Play button border brightened (0.25→0.30f). Active-state button alpha bumped from 0.25 to 0.35. All changes are in `PlayerControls.kt`.
+---
+- **Date:** 2026-09-17 22:41:00
+- **Issue:** Search bar persisted when opening a folder from folder list, and when navigating back from video list to folder list.
+- **Type:** Bug
+- **Solution:** In `VideoListScreen.kt`: (1) Added search dismissal (`searchActive = false`, `searchText = ""`, `viewModel.clearSearch()`) inside the existing `LaunchedEffect(selectedFolder)` block so search clears on any folder navigation change. (2) Added `searchActive` to the `BackHandler` enabled condition and made it the first `when` branch so pressing back while search is open collapses the search bar before doing anything else.
+---
+- **Date:** 2026-09-17 23:01:00
+- **Issue:** Android SDK was missing on environment, causing Gradle APK builds to fail.
+- **Type:** Build
+- **Solution:** Installed Android SDK command-line tools, configured `local.properties`, installed platforms (35, 36), build-tools (35.0.0), platform-tools, NDK r27, and CMake 3.22.1, and successfully assembled debug APKs.
+---
+- **Date:** 2026-09-17 23:30:00
+- **Issue:** (1) Search bar persisted on folder list when opened with no text and user tapped a folder. (2) On folder list screen, search was filtering videos instead of folder names.
+- **Type:** Bug
+- **Solution:** (1) Added immediate search dismissal (`searchActive = false`, `searchText = ""`, `viewModel.clearSearch()`) directly in `onFolderClick` lambda before calling `selectFolder()`. (2) Added `searchQuery` param to `FolderListContent` to filter `sortedFolders` by folder name locally. On folder list, `onSearchTextChange` no longer calls `viewModel.onSearchQueryChanged()`, keeping video data unaffected. Added `searchPlaceholder` param to `VideoListTopAppBar` for context-aware placeholder text.
+---
+- **Date:** 2026-09-17 23:47:00
+- **Issue:** (1) Search inside a folder was filtering globally instead of only within that folder. (2) Folder list search was not matching videos inside folders. (3) Swipe-to-seek popup was too large, showing a progress bar and total duration.
+- **Type:** Bug, UI
+- **Solution:** (1) Inside-folder video list now uses `rawVideosByFolder[folder]` and filters locally by `searchText` so only that folder's videos are searched. (2) `FolderListContent.searchQuery` filter now includes folders whose video titles match (name OR video title). (3) `SeekIndicatorOverlay` redesigned as a compact horizontal pill — progress bar and total duration removed, background alpha reduced to 0.38, moved 22dp higher, now shows only delta chip and current timestamp.
+---
+- **Date:** 2026-09-18 10:57:00
+- **Issue:** (1) The swipe-to-seek popup pill was appearing too low. (2) The 2X Speed overlays in `PlayerScreen` and `FeedScreen` needed UI alignment (larger text, matching background styles).
+- **Type:** UI
+- **Solution:** (1) Increased `SeekIndicatorOverlay` top padding in `GestureOverlay.kt` from 72dp to 110dp. (2) Updated `SpeedSliderHUD` (PlayerScreen) and the 2X Speed Surface (FeedScreen) to use `Color.Black.copy(alpha = 0.38f)` for background, `Color.White.copy(alpha = 0.12f)` for the border, 16dp rounded corners, and increased text size to 14sp.
+---
+- **Date:** 2026-09-18 11:30:00
+- **Issue:** (1) 2X Speed popup background didn't match the seek pill. (2) Current Palette swatches were not individually customizable.
+- **Type:** UI, Feature
+- **Solution:** (1) Changed `SpeedSliderHUD` background from `Color.White.copy(alpha=0.12f)` to `Color.Black.copy(alpha=0.38f)` to match the seek pill. (2) Added full per-slot color override system: `PlaybackSettingsRepository` stores 8 color overrides in SharedPreferences; `SettingsViewModel` exposes `colorOverrides` flow with `setColorOverride()`/`clearAllColorOverrides()`; `Theme.kt` applies overrides via `colorScheme.copy()`; `MainActivity` passes overrides to `MyPlayerTheme`; `AppearanceSettingsScreen` makes each swatch tappable, showing a `ColorPickerDialog` with RGB sliders, hex input, live preview, and per-slot Reset button.
+---
+- **Date:** 2026-09-18 11:40:00
+- **Issue:** App version was outdated.
+- **Type:** Version Bump
+- **Solution:** Incremented versionCode to 12 and changed versionName to 1.2 in app/build.gradle.kts.
+---

@@ -785,7 +785,8 @@ fun GestureOverlay(
             ),
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .padding(top = 50.dp)
+                .statusBarsPadding()
+                .padding(top = 6.dp)
         ) {
             SeekIndicatorOverlay(
                 currentSeekPos = currentSeekPos,
@@ -988,104 +989,57 @@ private fun SeekIndicatorOverlay(
 ) {
     val isForward = seekDeltaSeconds >= 0
     val accentColor = if (isForward) Color(0xFF00E5FF) else Color(0xFFFF6B6B)
-    val progressFraction = if (duration > 0L) (currentSeekPos.toFloat() / duration.toFloat()).coerceIn(0f, 1f) else 0f
     val deltaLabel = if (isForward) "+${seekDeltaSeconds}s" else "${seekDeltaSeconds}s"
 
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(0.dp),
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
         modifier = Modifier
-            .widthIn(min = 200.dp, max = 320.dp)
-            .clip(RoundedCornerShape(20.dp))
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        Color.Black.copy(alpha = 0.55f),
-                        Color.Black.copy(alpha = 0.40f)
-                    )
-                )
-            )
+            .clip(RoundedCornerShape(16.dp))
+            .background(Color.Black.copy(alpha = 0.38f))
             .border(
-                width = 0.8.dp,
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        Color.White.copy(alpha = 0.18f),
-                        Color.White.copy(alpha = 0.06f)
-                    )
-                ),
-                shape = RoundedCornerShape(20.dp)
+                width = 0.7.dp,
+                color = Color.White.copy(alpha = 0.12f),
+                shape = RoundedCornerShape(16.dp)
             )
-            .padding(horizontal = 20.dp, vertical = 14.dp)
+            .padding(horizontal = 16.dp, vertical = 10.dp)
     ) {
-        // Direction chip + time row
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            // Direction pill chip
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(50))
-                    .background(accentColor.copy(alpha = 0.18f))
-                    .border(0.6.dp, accentColor.copy(alpha = 0.55f), RoundedCornerShape(50))
-                    .padding(horizontal = 10.dp, vertical = 4.dp)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Icon(
-                        imageVector = if (isForward) Icons.Rounded.FastForward else Icons.Rounded.FastRewind,
-                        contentDescription = null,
-                        tint = accentColor,
-                        modifier = Modifier.size(14.dp)
-                    )
-                    Text(
-                        text = deltaLabel,
-                        color = accentColor,
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 0.3.sp
-                    )
-                }
-            }
-
-            // Current / Total time
-            Text(
-                text = "${formatTime(currentSeekPos)}  /  ${formatTime(duration)}",
-                color = Color.White.copy(alpha = 0.95f),
-                fontSize = 17.sp,
-                fontWeight = FontWeight.SemiBold,
-                letterSpacing = 0.2.sp
-            )
-        }
-
-        Spacer(modifier = Modifier.height(10.dp))
-
-        // Seek progress bar
+        // Direction pill chip
         Box(
+            contentAlignment = Alignment.Center,
             modifier = Modifier
-                .fillMaxWidth()
-                .height(3.dp)
-                .clip(RoundedCornerShape(2.dp))
-                .background(Color.White.copy(alpha = 0.15f))
+                .clip(RoundedCornerShape(50))
+                .background(accentColor.copy(alpha = 0.18f))
+                .border(0.6.dp, accentColor.copy(alpha = 0.55f), RoundedCornerShape(50))
+                .padding(horizontal = 10.dp, vertical = 4.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(progressFraction)
-                    .fillMaxHeight()
-                    .background(
-                        brush = Brush.horizontalGradient(
-                            colors = listOf(
-                                accentColor.copy(alpha = 0.7f),
-                                accentColor
-                            )
-                        ),
-                        shape = RoundedCornerShape(2.dp)
-                    )
-            )
-            // Thumb dot - drawn as a small overlay box pinned to fill-end via the progress box above
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Icon(
+                    imageVector = if (isForward) Icons.Rounded.FastForward else Icons.Rounded.FastRewind,
+                    contentDescription = null,
+                    tint = accentColor,
+                    modifier = Modifier.size(14.dp)
+                )
+                Text(
+                    text = deltaLabel,
+                    color = accentColor,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 0.3.sp
+                )
+            }
         }
+
+        // Current timestamp only
+        Text(
+            text = formatTime(currentSeekPos),
+            color = Color.White.copy(alpha = 0.95f),
+            fontSize = 17.sp,
+            fontWeight = FontWeight.SemiBold,
+            letterSpacing = 0.2.sp
+        )
     }
 }

@@ -31,6 +31,7 @@ fun MyPlayerTheme(
     palette: AppThemePalette = AppThemePalette.CINEMATIC,
     isNavBarTransparent: Boolean = true,
     isAmoledTheme: Boolean = false,
+    colorOverrides: Map<String, Int> = emptyMap(),
     content: @Composable () -> Unit
 ) {
     val systemDark = isSystemInDarkTheme()
@@ -45,7 +46,7 @@ fun MyPlayerTheme(
         else      -> palette.lightScheme()
     }
 
-    val colorScheme = if (darkTheme && isAmoledTheme) {
+    val amoledScheme = if (darkTheme && isAmoledTheme) {
         baseColorScheme.copy(
             background = Color.Black,
             surface = Color.Black,
@@ -58,6 +59,22 @@ fun MyPlayerTheme(
         )
     } else {
         baseColorScheme
+    }
+
+    // Apply per-slot user overrides on top
+    val colorScheme = if (colorOverrides.isEmpty()) {
+        amoledScheme
+    } else {
+        amoledScheme.copy(
+            primary              = colorOverrides["primary"]?.let { Color(it) } ?: amoledScheme.primary,
+            secondary            = colorOverrides["secondary"]?.let { Color(it) } ?: amoledScheme.secondary,
+            tertiary             = colorOverrides["tertiary"]?.let { Color(it) } ?: amoledScheme.tertiary,
+            primaryContainer     = colorOverrides["primaryContainer"]?.let { Color(it) } ?: amoledScheme.primaryContainer,
+            secondaryContainer   = colorOverrides["secondaryContainer"]?.let { Color(it) } ?: amoledScheme.secondaryContainer,
+            tertiaryContainer    = colorOverrides["tertiaryContainer"]?.let { Color(it) } ?: amoledScheme.tertiaryContainer,
+            surfaceContainerHigh = colorOverrides["surfaceContainerHigh"]?.let { Color(it) } ?: amoledScheme.surfaceContainerHigh,
+            outline              = colorOverrides["outline"]?.let { Color(it) } ?: amoledScheme.outline
+        )
     }
 
     val view = LocalView.current

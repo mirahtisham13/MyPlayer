@@ -68,6 +68,11 @@ class PlaybackSettingsRepository(context: Context) {
             "whitelisted_folders", "folder_filter_mode" -> {
                 _playbackSettingsFlow.value = loadPlaybackSettings()
             }
+            else -> {
+                if (key != null && key.startsWith("color_override_")) {
+                    _colorOverridesFlow.value = loadColorOverrides()
+                }
+            }
         }
     }
 
@@ -114,6 +119,18 @@ class PlaybackSettingsRepository(context: Context) {
     private val _isNavBarTransparentFlow =
         MutableStateFlow(prefs.getBoolean("is_navbar_transparent", true))
     val isNavBarTransparentFlow: StateFlow<Boolean> = _isNavBarTransparentFlow.asStateFlow()
+
+    private val _colorOverridesFlow = MutableStateFlow(loadColorOverrides())
+    val colorOverridesFlow: StateFlow<Map<String, Int>> = _colorOverridesFlow.asStateFlow()
+
+    private fun loadColorOverrides(): Map<String, Int> {
+        val slots = listOf("primary", "secondary", "tertiary", "primaryContainer",
+            "secondaryContainer", "tertiaryContainer", "surfaceContainerHigh", "outline")
+        return slots.mapNotNull { slot ->
+            val key = "color_override_$slot"
+            if (prefs.contains(key)) slot to prefs.getInt(key, 0) else null
+        }.toMap()
+    }
 
     // Full playback settings flow
     private val _playbackSettingsFlow = MutableStateFlow(loadPlaybackSettings())
@@ -531,6 +548,23 @@ class PlaybackSettingsRepository(context: Context) {
     suspend fun setNavBarTransparent(transparent: Boolean) {
         _isNavBarTransparentFlow.value = transparent
         prefs.edit().putBoolean("is_navbar_transparent", transparent).apply()
+    }
+
+    suspend fun setColorOverride(slot: String, colorArgb: Int?) {
+        val key = "color_override_$slot"
+        if (colorArgb != null) {
+            prefs.edit().putInt(key, colorArgb).apply()
+        } else {
+            prefs.edit().remove(key).apply()
+        }
+        _colorOverridesFlow.value = loadColorOverrides()
+    }
+
+    suspend fun clearAllColorOverrides() {
+        val slots = listOf("primary", "secondary", "tertiary", "primaryContainer",
+            "secondaryContainer", "tertiaryContainer", "surfaceContainerHigh", "outline")
+        prefs.edit().also { editor -> slots.forEach { editor.remove("color_override_$it") } }.apply()
+        _colorOverridesFlow.value = emptyMap()
     }
 
     // Setters for PlaybackSettings
