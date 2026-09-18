@@ -26,5 +26,5 @@ If you encounter any bugs or have feature requests, please use the GitHub Issues
 
 ## Credits & Acknowledgements
 - Developed by **[Ahtisham Mir](https://github.com/mirahtisham13)**
-- Co-developed with AI.
-- Original Base Project: **[Nosved-Player](https://github.com/DevSon1024/Nosved-Player)** by DevSon1024.
+- Based on: **[Nosved-Player](https://github.com/DevSon1024/Nosved-Player)** by DevSon1024.
+- Licensed under the MIT License
